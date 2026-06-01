@@ -1,0 +1,13 @@
+# 主题一般没有 public/，但若本地 hugo 测试过可忽略
+/public/
+/resources/
+.hugo_build.lock
+
+# 编辑器 / 系统文件
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# 若以后加前端工具链
+/node_modules/

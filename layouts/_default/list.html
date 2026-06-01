@@ -1,0 +1,21 @@
+{{ define "main" }}
+<section class="list-page">
+  <h1>{{ .Title }}</h1>
+
+  {{ range .Pages }}
+    <article class="post-card">
+      <h2>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h2>
+
+      {{ with .Date }}
+        <time>{{ .Format "2006-01-02" }}</time>
+      {{ end }}
+
+      <p>{{ .Summary }}</p>
+    </article>
+  {{ else }}
+    <p>暂无内容。</p>
+  {{ end }}
+</section>
+{{ end }}

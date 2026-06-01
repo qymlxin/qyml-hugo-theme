@@ -1,0 +1,26 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>{{ site.Title }}</h1>
+  <p>这是我自己写的 Hugo Module 主题。</p>
+</section>
+
+<section class="post-list">
+  <h2>最新文章</h2>
+
+  {{ range first 5 site.RegularPages }}
+    <article class="post-card">
+      <h3>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h3>
+
+      {{ with .Date }}
+        <time>{{ .Format "2006-01-02" }}</time>
+      {{ end }}
+
+      <p>{{ .Summary }}</p>
+    </article>
+  {{ else }}
+    <p>还没有文章。</p>
+  {{ end }}
+</section>
+{{ end }}
