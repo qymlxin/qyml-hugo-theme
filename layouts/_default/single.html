@@ -1,13 +1,20 @@
 {{ define "main" }}
 <article class="post">
-  <h1>{{ .Title }}</h1>
+  <header class="post-header">
+    <h1>{{ .Title }}</h1>
 
-  {{ with .Date }}
-    <time>{{ .Format "2006-01-02" }}</time>
-  {{ end }}
+    <div class="post-meta">
+      {{ with .Date }}
+        <time datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+      {{ end }}
+      <span>{{ .ReadingTime }} 分钟阅读</span>
+    </div>
+  </header>
 
   <div class="post-content">
     {{ .Content }}
   </div>
+
+  {{ partial "comments.html" . }}
 </article>
 {{ end }}

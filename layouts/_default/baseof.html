@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="{{ site.Language.LanguageCode | default "zh-cn" }}">
 <head>
+  <script>
+    (() => {
+      const storedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (storedTheme === "dark" || (!storedTheme && prefersDark)) {
+        document.documentElement.dataset.theme = "dark";
+      } else if (storedTheme === "light") {
+        document.documentElement.dataset.theme = "light";
+      }
+    })();
+  </script>
   {{ partial "head.html" . }}
 </head>
 <body>

@@ -1,0 +1,27 @@
+{{ define "main" }}
+<section class="list-page">
+  <header class="post-header">
+    <p class="post-cats"><span class="post-cat">{{ if eq .Data.Singular "category" }}分类{{ else }}标签{{ end }}</span></p>
+    <h1 class="page-title">{{ .Title }}</h1>
+    <p class="page-description">共 {{ len .Pages }} 篇文章</p>
+  </header>
+
+  <div class="post-list">
+  {{ range .Pages }}
+    <a class="post-item" href="{{ .RelPermalink }}">
+      <div class="post-item-head">
+        <h2 class="post-item-title">{{ .Title }}</h2>
+        {{ with .Date }}
+          <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+        {{ end }}
+      </div>
+      {{ with .Summary }}
+        <p class="post-item-summary">{{ . | plainify }}</p>
+      {{ end }}
+    </a>
+  {{ else }}
+    <p class="post-empty">暂无内容。</p>
+  {{ end }}
+  </div>
+</section>
+{{ end }}

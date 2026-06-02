@@ -1,26 +1,46 @@
 {{ define "main" }}
 <section class="hero">
   <h1>{{ site.Title }}</h1>
-  <p>这是我自己写的 Hugo Module 主题。</p>
+  <p>{{ site.Params.subtitle }}</p>
 </section>
 
-<section class="post-list">
-  <h2>最新文章</h2>
+<section>
+  <div class="section-header">
+    <h2>文章列表</h2>
+  </div>
 
-  {{ range first 5 site.RegularPages }}
-    <article class="post-card">
-      <h3>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      </h3>
-
-      {{ with .Date }}
-        <time>{{ .Format "2006-01-02" }}</time>
+  {{ $paginator := .Paginate site.RegularPages }}
+  <div class="post-list post-list--rich">
+  {{ range $paginator.Pages }}
+    <a class="post-item" href="{{ .RelPermalink }}">
+      {{ with .Params.categories }}
+        <div class="post-cats">
+          {{ range first 2 . }}<span class="post-cat">{{ . }}</span>{{ end }}
+        </div>
       {{ end }}
 
-      <p>{{ .Summary }}</p>
-    </article>
+      <div class="post-item-head">
+        <h3 class="post-item-title">{{ .Title }}</h3>
+        {{ with .Date }}
+          <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+        {{ end }}
+      </div>
+
+      {{ with .Params.tags }}
+        <div class="post-tags">
+          {{ range first 4 . }}<span class="post-tag">#{{ . }}</span>{{ end }}
+        </div>
+      {{ end }}
+
+      {{ with .Summary }}
+        <p class="post-item-desc">{{ . | plainify }}</p>
+      {{ end }}
+    </a>
   {{ else }}
-    <p>还没有文章。</p>
+    <p class="post-empty">暂无内容。</p>
   {{ end }}
+  </div>
+
+  {{ template "_internal/pagination.html" . }}
 </section>
 {{ end }}

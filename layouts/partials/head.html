@@ -1,15 +1,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+{{ $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) }}
+{{ $description := .Description | default .Summary | default site.Params.description | default site.Title | plainify }}
+
 <title>
-  {{ if .IsHome }}
-    {{ site.Title }}
-  {{ else }}
-    {{ .Title }} | {{ site.Title }}
-  {{ end }}
+  {{ $title }}
 </title>
+<meta name="description" content="{{ $description }}">
+<link rel="canonical" href="{{ .Permalink }}">
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ "index.xml" | absURL }}">
+
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+{{ with site.Params.defaultImage }}
+  <meta property="og:image" content="{{ . | absURL }}">
+{{ end }}
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="theme-color" content="#f7f8fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)">
 
 {{ with resources.Get "css/main.css" }}
   {{ $css := . | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+{{ end }}
+
+<script defer src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+{{ with resources.Get "js/search.js" }}
+  {{ $search := . | minify | fingerprint }}
+  <script defer src="{{ $search.RelPermalink }}"></script>
 {{ end }}
