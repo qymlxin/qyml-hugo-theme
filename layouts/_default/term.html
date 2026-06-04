@@ -6,7 +6,7 @@
     <p class="page-description">共 {{ len .Pages }} 篇文章</p>
   </header>
 
-  <div class="post-list">
+  <div class="post-list post-list--simple">
   {{ range .Pages }}
     <a class="post-item" href="{{ .RelPermalink }}">
       <div class="post-item-head">

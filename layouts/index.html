@@ -1,40 +1,41 @@
 {{ define "main" }}
 <section class="hero">
   <h1>{{ site.Title }}</h1>
-  <p>{{ site.Params.subtitle }}</p>
+  {{ with site.Params.subtitle }}
+    <p class="hero-lead">{{ . }}</p>
+  {{ end }}
 </section>
 
 <section>
   <div class="section-header">
-    <h2>文章列表</h2>
+    <h2>最近更新</h2>
   </div>
 
   {{ $paginator := .Paginate site.RegularPages }}
-  <div class="post-list post-list--rich">
+  <div class="post-list">
   {{ range $paginator.Pages }}
     <a class="post-item" href="{{ .RelPermalink }}">
-      {{ with .Params.categories }}
-        <div class="post-cats">
-          {{ range first 2 . }}<span class="post-cat">{{ . }}</span>{{ end }}
-        </div>
+      {{ with .Date }}
+        <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
       {{ end }}
-
-      <div class="post-item-head">
-        <h3 class="post-item-title">{{ .Title }}</h3>
-        {{ with .Date }}
-          <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+      <div class="post-item-body">
+        {{ with .Params.categories }}
+          <div class="post-cats">
+            {{ range first 2 . }}<span class="post-cat">{{ . }}</span>{{ end }}
+          </div>
+        {{ end }}
+        <div class="post-item-head">
+          <h3 class="post-item-title">{{ .Title }}</h3>
+        </div>
+        {{ with .Params.tags }}
+          <div class="post-tags">
+            {{ range first 4 . }}<span class="post-tag">{{ . }}</span>{{ end }}
+          </div>
+        {{ end }}
+        {{ with .Summary }}
+          <p class="post-item-desc">{{ . | plainify }}</p>
         {{ end }}
       </div>
-
-      {{ with .Params.tags }}
-        <div class="post-tags">
-          {{ range first 4 . }}<span class="post-tag">#{{ . }}</span>{{ end }}
-        </div>
-      {{ end }}
-
-      {{ with .Summary }}
-        <p class="post-item-desc">{{ . | plainify }}</p>
-      {{ end }}
     </a>
   {{ else }}
     <p class="post-empty">暂无内容。</p>
