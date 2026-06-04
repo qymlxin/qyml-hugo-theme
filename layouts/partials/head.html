@@ -34,7 +34,15 @@
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{ end }}
 
-<script defer src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+{{/* KaTeX CSS 提前到 head，防止公式渲染闪烁 */}}
+{{ if .Params.math }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+{{ end }}
+
+{{ with resources.Get "js/vendor/fuse.min.js" }}
+  {{ $fuse := . | fingerprint }}
+  <script defer src="{{ $fuse.RelPermalink }}"></script>
+{{ end }}
 {{ with resources.Get "js/search.js" }}
   {{ $search := . | minify | fingerprint }}
   <script defer src="{{ $search.RelPermalink }}"></script>

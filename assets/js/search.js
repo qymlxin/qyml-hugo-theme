@@ -172,4 +172,61 @@
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closePanel();
   });
+
+  // 代码块：注入语言标签 + 复制按钮
+  document.querySelectorAll(".post-content .highlight").forEach((block) => {
+    // 从 class 里提取语言（Hugo 生成的 class 形如 "language-go"）
+    const pre = block.querySelector("pre");
+    const code = pre?.querySelector("code");
+    const langClass = code?.className.match(/language-(\w+)/);
+    if (langClass) block.dataset.lang = langClass[1];
+
+    // 插入复制按钮
+    const btn = document.createElement("button");
+    btn.className = "code-copy-btn";
+    btn.setAttribute("aria-label", "复制代码");
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+    block.appendChild(btn);
+
+    btn.addEventListener("click", async () => {
+      const text = code?.innerText ?? pre?.innerText ?? "";
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add("copied");
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+        }, 2000);
+      } catch {
+        // clipboard 不可用时静默失败
+      }
+    });
+  });
+
+  // TOC 滚动高亮
+  const tocLinks = document.querySelectorAll(".toc-nav a");
+  if (tocLinks.length) {
+    const headings = Array.from(
+      document.querySelectorAll(".post-content h2, .post-content h3")
+    );
+
+    const onScroll = () => {
+      const scrollY = window.scrollY + 100;
+      let current = headings[0];
+      for (const h of headings) {
+        if (h.offsetTop <= scrollY) current = h;
+      }
+      tocLinks.forEach((a) => {
+        const href = a.getAttribute("href");
+        a.classList.toggle(
+          "toc-active",
+          current && href === "#" + current.id
+        );
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
 })();

@@ -1,30 +1,72 @@
 {{ define "main" }}
-<article class="post">
-  <header class="post-header">
-    {{ with .Params.categories }}
-      <div class="post-cats post-header-cats">
-        {{ range . }}<span class="post-cat">{{ . }}</span>{{ end }}
-      </div>
-    {{ end }}
-    <h1>{{ .Title }}</h1>
+<div class="article-layout">
 
-    <div class="post-meta">
-      {{ with .Date }}
-        <time datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+  <article class="post">
+    <header class="post-header">
+      {{ with .Params.categories }}
+        <div class="post-cats post-header-cats">
+          {{ range . }}<span class="post-cat">{{ . }}</span>{{ end }}
+        </div>
       {{ end }}
-      <span class="post-meta-divider" aria-hidden="true">·</span>
-      <span>{{ .ReadingTime }} 分钟阅读</span>
-      {{ with .Params.tags }}
+      <h1>{{ .Title }}</h1>
+
+      <div class="post-meta">
+        {{ with .Date }}
+          <time datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+        {{ end }}
         <span class="post-meta-divider" aria-hidden="true">·</span>
-        <span>{{ delimit . "、" }}</span>
-      {{ end }}
+        <span>{{ .ReadingTime }} 分钟阅读</span>
+        {{ with .Params.tags }}
+          <span class="post-meta-divider" aria-hidden="true">·</span>
+          <span>{{ delimit . "、" }}</span>
+        {{ end }}
+      </div>
+    </header>
+
+    <div class="post-content">
+      {{ .Content }}
     </div>
-  </header>
 
-  <div class="post-content">
-    {{ .Content }}
-  </div>
+    {{ partial "comments.html" . }}
+  </article>
 
-  {{ partial "comments.html" . }}
-</article>
+  {{/* 右侧目录 */}}
+  {{ if .TableOfContents }}
+  <aside class="article-toc">
+    <div class="toc-block">
+      <p class="toc-title">目录</p>
+      <nav class="toc-nav">
+        {{ .TableOfContents }}
+      </nav>
+    </div>
+  </aside>
+  {{ end }}
+
+</div>
+
+{{/* Mermaid：仅当页面内有 mermaid 代码块时才加载 */}}
+{{ if .Store.Get "hasMermaid" }}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+  });
+</script>
+{{ end }}
+
+{{/* KaTeX JS：body 末尾同步执行，消除公式闪烁（CSS 已在 head 加载） */}}
+{{ if .Params.math }}
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.querySelector('.post-content'), {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ],
+    throwOnError: false
+  });
+</script>
+{{ end }}
 {{ end }}

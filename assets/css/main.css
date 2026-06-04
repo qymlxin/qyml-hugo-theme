@@ -614,15 +614,17 @@ a:hover {
   margin-top: 2.25rem;
   margin-bottom: 0.75rem;
   line-height: 1.35;
+  /* 补偿固定 header，防止锚点跳转时标题被遮挡 */
+  scroll-margin-top: calc(var(--header-height) + 1.5rem);
 }
 
 .post-content h2 {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   padding-top: 0.25rem;
 }
 
 .post-content h3 {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 
 .post-content a {
@@ -644,26 +646,177 @@ a:hover {
 }
 
 .post-content code {
-  padding: 0.12rem 0.3rem;
-  border-radius: var(--radius);
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
   background: var(--surface-soft);
-  font-size: 0.86em;
+  font-size: 0.84em;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text);
+}
+
+/* 代码块外层容器（Hugo 生成的 .highlight div） */
+.post-content .highlight {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  margin: 0;
+}
+
+/* 语言标签 */
+.post-content .highlight::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 0.55rem;
+  right: 3.2rem;
+  font-size: 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #8b949e;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 复制按钮 */
+.code-copy-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #8b949e;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  z-index: 2;
+}
+
+.post-content .highlight:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e6edf3;
+}
+
+.code-copy-btn.copied {
+  color: #56d364;
 }
 
 .post-content pre {
-  padding: 1rem 1.1rem;
+  padding: 1.1rem 1.25rem;
   overflow-x: auto;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  border-radius: 0;
 }
 
 .post-content pre code {
   padding: 0;
   background: transparent;
+  font-size: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Chroma 语法高亮（github-dark 主题） */
+.chroma { color:#e6edf3;background-color:#0d1117; }
+.chroma .err { color:#f85149 }
+.chroma .lnlinks { outline:none;text-decoration:none;color:inherit }
+.chroma .lntd { vertical-align:top;padding:0;margin:0;border:0 }
+.chroma .lntable { border-spacing:0;padding:0;margin:0;border:0 }
+.chroma .hl { background-color:#6e7681 }
+.chroma .lnt { white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em;color:#737679 }
+.chroma .ln { white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em;color:#6e7681 }
+.chroma .line { display:flex }
+.chroma .k { color:#ff7b72 }
+.chroma .kc { color:#79c0ff }
+.chroma .kd { color:#ff7b72 }
+.chroma .kn { color:#ff7b72 }
+.chroma .kp { color:#79c0ff }
+.chroma .kr { color:#ff7b72 }
+.chroma .kt { color:#ff7b72 }
+.chroma .nc { color:#f0883e;font-weight:bold }
+.chroma .no { color:#79c0ff;font-weight:bold }
+.chroma .nd { color:#d2a8ff;font-weight:bold }
+.chroma .ni { color:#ffa657 }
+.chroma .ne { color:#f0883e;font-weight:bold }
+.chroma .nl { color:#79c0ff;font-weight:bold }
+.chroma .nn { color:#ff7b72 }
+.chroma .py { color:#79c0ff }
+.chroma .nt { color:#7ee787 }
+.chroma .nv,.chroma .vc,.chroma .vg,.chroma .vi,.chroma .vm { color:#79c0ff }
+.chroma .nf,.chroma .fm { color:#d2a8ff;font-weight:bold }
+.chroma .l,.chroma .ld { color:#a5d6ff }
+.chroma .s,.chroma .sb,.chroma .sc,.chroma .sd,.chroma .s2,.chroma .si,.chroma .sx,.chroma .s1,.chroma .ss { color:#a5d6ff }
+.chroma .sa,.chroma .dl,.chroma .se,.chroma .sh,.chroma .sr { color:#79c0ff }
+.chroma .m,.chroma .mb,.chroma .mf,.chroma .mh,.chroma .mi,.chroma .il,.chroma .mo { color:#a5d6ff }
+.chroma .o,.chroma .ow { color:#ff7b72;font-weight:bold }
+.chroma .c,.chroma .ch,.chroma .cm,.chroma .c1,.chroma .cs,.chroma .cp,.chroma .cpf { color:#8b949e;font-style:italic }
+.chroma .gd { color:#ffa198;background-color:#490202 }
+.chroma .ge { font-style:italic }
+.chroma .gr { color:#ffa198 }
+.chroma .gh { color:#79c0ff;font-weight:bold }
+.chroma .gi { color:#56d364;background-color:#0f5323 }
+.chroma .go { color:#8b949e }
+.chroma .gp { color:#8b949e }
+.chroma .gs { font-weight:bold }
+.chroma .gu { color:#79c0ff }
+.chroma .gt { color:#ff7b72 }
+.chroma .gl { text-decoration:underline }
+.chroma .w { color:#6e7681 }
+
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.post-content table thead th {
+  background: var(--surface-soft);
+  color: var(--text);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.post-content table td {
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+}
+
+.post-content table tr:last-child td {
+  border-bottom: none;
+}
+
+.post-content table tr:hover td {
+  background: var(--surface-soft);
+}
+
+/* 表格外层包裹，移动端横向滚动 */
+.post-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .comments-section {
@@ -1201,6 +1354,32 @@ a:hover {
   border-radius: 2px;
 }
 
+/* ── Mermaid 图表 ── */
+.mermaid-wrap {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem 1rem;
+}
+
+.mermaid-wrap pre.mermaid {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+/* Mermaid SVG 居中 */
+.mermaid-wrap svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* ── list 页头部 ── */
 .list-header {
   display: flex;
@@ -1513,4 +1692,115 @@ a:hover {
   font-size: 0.75rem;
   cursor: default;
   white-space: nowrap;
+}
+
+/* ── 文章页双栏布局 ── */
+.article-layout {
+  display: block;
+}
+
+.article-toc {
+  display: none;
+}
+
+/* post-content 在文章页去掉 max-width 约束，由布局决定 */
+.article-layout .post-content {
+  max-width: none;
+}
+
+@media (min-width: 1080px) {
+  body.kind-page {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: 0;
+    align-items: start;
+  }
+
+  .article-toc {
+    display: block;
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    padding-left: 2.5rem;
+    border-left: 1px solid var(--border);
+    max-height: calc(100vh - var(--header-height) - 4rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+}
+
+/* ── TOC 组件样式 ── */
+.toc-block {
+  padding: 0;
+}
+
+.toc-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.75rem;
+}
+
+.toc-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+/* 二级标题（h2）：较大字号、正常颜色 */
+.toc-nav > ul > li {
+  font-size: 0.9rem;
+}
+
+.toc-nav > ul > li > a {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* 三级标题（h3）：缩进、小字、灰色 */
+.toc-nav ul ul {
+  padding-left: 0.9rem;
+  margin-top: 0.05rem;
+}
+
+.toc-nav ul ul li {
+  font-size: 0.79rem;
+}
+
+.toc-nav ul ul li a {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.toc-nav a {
+  display: block;
+  padding: 0.25rem 0;
+  text-decoration: none;
+  line-height: 1.45;
+  transition: color 0.15s;
+  border-left: 2px solid transparent;
+  padding-left: 0.5rem;
+}
+
+.toc-nav a:hover {
+  color: var(--accent);
+  border-left-color: var(--border);
+}
+
+.toc-nav a.toc-active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
 }

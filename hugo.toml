@@ -7,6 +7,16 @@
 [pagination]
   pagerSize = 8
 
+[markup.highlight]
+  noClasses = false
+  lineNos = false
+  codeFences = true
+
+[markup.tableOfContents]
+  startLevel = 2
+  endLevel = 3
+  ordered = false
+
 # ── 个人资料（在站点 hugo.toml 的 [params] 下覆盖） ──
 [params]
   # author   = 'Your Name'
