@@ -5,10 +5,33 @@
   </a>
 
   <nav class="site-nav" id="site-nav" data-nav>
-    <a href="{{ site.Home.RelPermalink }}">首页</a>
-    <a href="/posts/">文章</a>
-    <a href="/categories/">分类</a>
-    <a href="/tags/">标签</a>
+    {{ $current := $.RelPermalink }}
+    {{ range site.Menus.main }}
+      {{ if .HasChildren }}
+        {{ $childActive := false }}
+        {{ range .Children }}
+          {{ if or (eq $current .URL) (and (ne .URL "/") (hasPrefix $current .URL)) }}
+            {{ $childActive = true }}
+          {{ end }}
+        {{ end }}
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-btn{{ if $childActive }} nav-active{{ end }}" type="button" aria-haspopup="true">
+            <span>{{ .Name }}</span>
+            <svg class="nav-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="nav-dropdown-menu">
+            {{ range .Children }}
+              {{ $isActive := or (eq $current .URL) (and (ne .URL "/") (hasPrefix $current .URL)) }}
+              <a href="{{ .URL }}"{{ if $isActive }} class="nav-active"{{ end }}>{{ .Name }}</a>
+            {{ end }}
+          </div>
+        </div>
+      {{ else }}
+        {{ $isHome := and (eq .URL "/") (eq $current "/") }}
+        {{ $isActive := or $isHome (and (ne .URL "/") (hasPrefix $current .URL)) }}
+        <a href="{{ .URL }}"{{ if $isActive }} class="nav-active"{{ end }}>{{ .Name }}</a>
+      {{ end }}
+    {{ end }}
   </nav>
 
   <div class="site-actions">

@@ -1,0 +1,35 @@
+{{/*
+  摘要优先级：
+  1. 文章内容中存在 <!--more--> → Hugo 自动截取 more 之前的内容
+  2. front matter 中的 summary 字段
+  3. 正文第一段（非标题、非空、长度 > 20 字符的段落）
+  4. Hugo 自动截取兜底
+*/}}
+{{- $page := . -}}
+{{- $summary := "" -}}
+
+{{- if strings.Contains $page.RawContent "<!--more-->" -}}
+  {{- $summary = $page.Summary | plainify | strings.TrimSpace -}}
+{{- else if $page.Params.summary -}}
+  {{- $summary = $page.Params.summary -}}
+{{- else -}}
+  {{- range split $page.RawContent "\n\n" -}}
+    {{- if not $summary -}}
+      {{- $p := trim . " \t\r\n" -}}
+      {{- $isHeading := hasPrefix $p "#" -}}
+      {{- $isFrontmatter := or (hasPrefix $p "+++") (hasPrefix $p "---") -}}
+      {{- $isComment := hasPrefix $p "<!--" -}}
+      {{- $isCode := hasPrefix $p "```" -}}
+      {{- if and (gt (len $p) 20) (not $isHeading) (not $isFrontmatter) (not $isComment) (not $isCode) -}}
+        {{- $summary = $p | markdownify | plainify | strings.TrimSpace -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $summary -}}
+    {{- $summary = $page.Summary | plainify | strings.TrimSpace -}}
+  {{- end -}}
+{{- end -}}
+
+{{- with $summary -}}
+<p class="post-item-summary">{{ . }}</p>
+{{- end -}}

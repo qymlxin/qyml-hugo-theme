@@ -1,47 +1,106 @@
 {{ define "main" }}
-<section class="hero">
-  <h1>{{ site.Title }}</h1>
-  {{ with site.Params.subtitle }}
-    <p class="hero-lead">{{ . }}</p>
-  {{ end }}
-</section>
+<div class="home-layout">
+  <aside class="sidebar sidebar-left">
+    <div class="side-block">
+      <h2 class="side-title">分类 &amp; 标签</h2>
 
-<section>
-  <div class="section-header">
-    <h2>最近更新</h2>
-  </div>
-
-  {{ $paginator := .Paginate site.RegularPages }}
-  <div class="post-list">
-  {{ range $paginator.Pages }}
-    <a class="post-item" href="{{ .RelPermalink }}">
-      {{ with .Date }}
-        <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
-      {{ end }}
-      <div class="post-item-body">
-        {{ with .Params.categories }}
-          <div class="post-cats">
-            {{ range first 2 . }}<span class="post-cat">{{ . }}</span>{{ end }}
-          </div>
-        {{ end }}
-        <div class="post-item-head">
-          <h3 class="post-item-title">{{ .Title }}</h3>
+      {{ with site.Taxonomies.categories }}
+        <div class="side-group">
+          <h3 class="side-label">分类</h3>
+          <ul class="side-terms">
+            {{ range .ByCount }}
+              <li>
+                <a href="{{ .Page.RelPermalink }}">
+                  <span>{{ .Page.Title }}</span>
+                  <span class="side-count">{{ .Count }}</span>
+                </a>
+              </li>
+            {{ end }}
+          </ul>
         </div>
-        {{ with .Params.tags }}
-          <div class="post-tags">
-            {{ range first 4 . }}<span class="post-tag">{{ . }}</span>{{ end }}
+      {{ end }}
+
+      {{ with site.Taxonomies.tags }}
+        <div class="side-group">
+          <h3 class="side-label">标签</h3>
+          <div class="side-tags">
+            {{ range .ByCount }}
+              <a class="side-tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+            {{ end }}
           </div>
-        {{ end }}
-        {{ with .Summary }}
-          <p class="post-item-desc">{{ . | plainify }}</p>
-        {{ end }}
+        </div>
+      {{ end }}
+    </div>
+  </aside>
+
+  <div class="home-main">
+    <section>
+      <div class="section-header">
+        <h2>最近更新</h2>
       </div>
-    </a>
-  {{ else }}
-    <p class="post-empty">暂无内容。</p>
-  {{ end }}
+
+      {{ $paginator := .Paginate site.RegularPages }}
+      <div class="post-list">
+      {{ range $paginator.Pages }}
+        <article class="post-item">
+          {{ with .Date }}
+            <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
+          {{ end }}
+          <div class="post-item-body">
+            {{ with .Params.categories }}
+              <div class="post-cats">
+                {{ range first 2 . }}
+                  <a class="post-cat post-cat-link" href="{{ "/categories/" | relURL }}{{ . | urlize }}/">{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+            <h3 class="post-item-title">
+              <a class="post-item-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </h3>
+            {{ with .Params.tags }}
+              <div class="post-tags">
+                {{ range first 4 . }}
+                  <a class="post-tag post-tag-link" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">{{ . }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+            {{ partial "post-summary.html" . }}
+          </div>
+        </article>
+      {{ else }}
+        <p class="post-empty">暂无内容。</p>
+      {{ end }}
+      </div>
+
+      {{ template "_internal/pagination.html" . }}
+    </section>
   </div>
 
-  {{ template "_internal/pagination.html" . }}
-</section>
+  <aside class="sidebar sidebar-right">
+    {{ partial "profile.html" . }}
+
+    <div class="side-block">
+      <h2 class="side-title">最近文章</h2>
+      <ul class="side-list">
+        {{ range first 5 site.RegularPages }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+    </div>
+
+    <div class="side-block">
+      <h2 class="side-title">归档</h2>
+      <ul class="side-terms side-archive">
+        {{ range site.RegularPages.GroupByDate "2006年01月" }}
+          <li>
+            <a href="{{ "/archive/" | relURL }}">
+              <span>{{ .Key }}</span>
+              <span class="side-count">{{ len .Pages }}</span>
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    </div>
+  </aside>
+</div>
 {{ end }}

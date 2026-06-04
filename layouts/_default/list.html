@@ -1,28 +1,53 @@
 {{ define "main" }}
+{{ $paginator := .Paginate .Pages }}
 <section class="list-page">
-  <header class="post-header">
-    <h1 class="page-title">{{ .Title }}</h1>
-    {{ with .Description }}
-      <p class="page-description">{{ . }}</p>
-    {{ end }}
+
+  <header class="list-header">
+    <div class="list-header-main">
+      <h1 class="page-title">{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="page-description">{{ . }}</p>
+      {{ end }}
+    </div>
+    <div class="list-header-meta">
+      <span class="list-count">{{ len .Pages }}</span>
+      <span class="list-count-label">篇文章</span>
+    </div>
   </header>
 
-  <div class="post-list post-list--simple">
-  {{ range .Pages }}
-    <a class="post-item" href="{{ .RelPermalink }}">
-      <div class="post-item-head">
-        <h2 class="post-item-title">{{ .Title }}</h2>
-        {{ with .Date }}
-          <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
-        {{ end }}
-      </div>
-      {{ with .Summary }}
-        <p class="post-item-summary">{{ . }}</p>
+  <div class="post-list">
+  {{ range $paginator.Pages }}
+    <article class="post-item">
+      {{ with .Date }}
+        <time class="post-item-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006-01-02" }}</time>
       {{ end }}
-    </a>
+      <div class="post-item-body">
+        {{ with .Params.categories }}
+          <div class="post-cats">
+            {{ range first 2 . }}
+              <a class="post-cat post-cat-link" href="{{ "/categories/" | relURL }}{{ . | urlize }}/">{{ . }}</a>
+            {{ end }}
+          </div>
+        {{ end }}
+        <h2 class="post-item-title">
+          <a class="post-item-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h2>
+        {{ with .Params.tags }}
+          <div class="post-tags">
+            {{ range first 4 . }}
+              <a class="post-tag post-tag-link" href="{{ "/tags/" | relURL }}{{ . | urlize }}/">#{{ . }}</a>
+            {{ end }}
+          </div>
+        {{ end }}
+        {{ partial "post-summary.html" . }}
+      </div>
+    </article>
   {{ else }}
     <p class="post-empty">暂无内容。</p>
   {{ end }}
   </div>
+
+  {{ template "_internal/pagination.html" . }}
+
 </section>
 {{ end }}
