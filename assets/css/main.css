@@ -57,10 +57,12 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 body {
@@ -542,6 +544,8 @@ a:hover {
   flex-wrap: wrap;
   gap: 0.35rem;
   margin-bottom: 0.4rem;
+  position: relative;
+  z-index: 2;
 }
 
 .post-cat {
@@ -559,6 +563,8 @@ a:hover {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .post-tag {
@@ -1013,6 +1019,7 @@ a:hover {
     border-bottom: 1px solid var(--border);
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transform: translateY(-0.35rem);
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
   }
@@ -1020,6 +1027,7 @@ a:hover {
   .site-nav.is-open {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
     transform: translateY(0);
   }
 
@@ -1049,7 +1057,9 @@ a:hover {
     justify-content: space-between;
   }
 
-  /* 移动端：子菜单直接展开，静态显示 */
+  /* 移动端：子菜单常驻展开，静态显示
+     .site-nav 收起时有 pointer-events:none（继承），阻止幽灵点击；
+     opacity:0 让收起时内容透明，visibility:visible 保证展开时立即可见 */
   .nav-dropdown-menu {
     position: static;
     opacity: 1;
@@ -1059,7 +1069,7 @@ a:hover {
     border: none;
     border-radius: 0;
     background: none;
-    padding: 0 0 0.5rem 0.75rem;
+    padding: 0 0 0.6rem 0;
     min-width: auto;
   }
 
@@ -1073,14 +1083,34 @@ a:hover {
     display: none;
   }
 
+  /* 子菜单项：左色线缩进，体现层级 */
   .nav-dropdown-menu a {
-    padding: 0.35rem 0;
-    font-size: 0.9rem;
+    padding: 0.32rem 0 0.32rem 0.9rem;
+    font-size: 0.88rem;
     border-bottom: none;
+    border-left: 2px solid var(--accent);
+    margin-left: 0.2rem;
+    color: var(--muted);
   }
 
+  .nav-dropdown-menu a:hover,
+  .nav-dropdown-menu a.nav-active {
+    color: var(--accent);
+  }
+
+  /* 移动端显示折叠箭头，默认向下（展开状态） */
   .nav-dropdown-arrow {
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  /* 折叠状态：隐藏子菜单，箭头旋转 */
+  .nav-dropdown.is-collapsed .nav-dropdown-menu {
     display: none;
+  }
+
+  .nav-dropdown.is-collapsed .nav-dropdown-arrow {
+    transform: rotate(-90deg);
   }
 
   .search-shell {
@@ -1307,6 +1337,19 @@ a:hover {
   }
 }
 
+/* term 页移动端：sidebar 隐藏，term-main 全宽 */
+.term-layout {
+  display: block;
+}
+
+.term-layout .sidebar {
+  display: none;
+}
+
+.term-main {
+  width: 100%;
+}
+
 @media (min-width: 900px) {
   body.kind-term {
     max-width: 72rem;
@@ -1314,7 +1357,6 @@ a:hover {
     padding-left: 2rem;
     padding-right: 2rem;
   }
-
 
   .term-layout {
     display: grid;
@@ -1491,7 +1533,7 @@ a:hover {
 }
 
 .archive-main {
-  /* mobile: full width */
+  width: 100%;
 }
 
 @media (min-width: 900px) {
@@ -1803,4 +1845,207 @@ a:hover {
   color: var(--accent);
   border-left-color: var(--accent);
   font-weight: 600;
+}
+
+/* ── 移动端侧滑抽屉 ── */
+.mob-drawer {
+  pointer-events: none;
+}
+
+.mob-drawer.is-open {
+  pointer-events: auto;
+}
+
+.mob-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 310;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mob-drawer.is-open .mob-drawer-overlay {
+  opacity: 1;
+}
+
+.mob-drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(82vw, 18rem);
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  z-index: 311;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+
+.mob-drawer.is-open .mob-drawer-panel {
+  transform: translateX(0);
+}
+
+.mob-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mob-drawer-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mob-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.mob-drawer-close:hover {
+  color: var(--text);
+}
+
+.mob-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.1rem 1.1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* fab-toc：默认不显示，各页面按断点控制 */
+.fab-toc {
+  display: none;
+}
+
+@media (max-width: 1079px) {
+  body.kind-page .fab-toc {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 899px) {
+  body.kind-term .fab-toc,
+  body.layout-archive .fab-toc {
+    display: inline-flex;
+  }
+}
+
+/* ── Lightbox 图片/图表放大预览 ── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  cursor: pointer;
+}
+
+.lightbox-body {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 72rem);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.lightbox-body img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(90vh - 2rem);
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.lightbox-body svg {
+  display: block;
+  max-width: min(90vw, 70rem);
+  max-height: calc(90vh - 2rem);
+  height: auto;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.lightbox-close:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+/* 可点击的图片/mermaid 加放大指针 */
+.post-content img.zoomable,
+.mermaid-wrap.zoomable {
+  cursor: zoom-in;
+}
+
+/* ── 复制成功 Toast ── */
+.copy-toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.4rem);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 500;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.copy-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }

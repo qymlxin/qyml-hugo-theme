@@ -5,10 +5,13 @@
     (() => {
       const storedTheme = localStorage.getItem("theme");
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (storedTheme === "dark" || (!storedTheme && prefersDark)) {
+      const isDark = storedTheme === "dark" || (!storedTheme && prefersDark);
+      if (isDark) {
         document.documentElement.dataset.theme = "dark";
+        document.documentElement.style.background = "#141312";
       } else if (storedTheme === "light") {
         document.documentElement.dataset.theme = "light";
+        document.documentElement.style.background = "#f7f5f0";
       }
     })();
   </script>
@@ -22,5 +25,14 @@
   </main>
 
   {{ partial "footer.html" . }}
+
+  {{/* 图片 / Mermaid 放大预览 Lightbox */}}
+  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog">
+    <div class="lightbox-bg" id="lightbox-bg"></div>
+    <div class="lightbox-body" id="lightbox-body"></div>
+    <button class="lightbox-close" id="lightbox-close" aria-label="关闭预览">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
 </body>
 </html>
