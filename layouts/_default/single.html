@@ -44,14 +44,36 @@
 
 </div>
 
-{{/* Mermaid：仅当页面内有 mermaid 代码块时才加载 */}}
+{{/* Shiki 代码高亮 */}}
+<script type="module" src="/js/shiki-hl.js"></script>
+
+{{/* Mermaid：支持主题切换时实时重绘 */}}
 {{ if .Store.Get "hasMermaid" }}
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+
+  const getMermaidTheme = () =>
+    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
+
+  // 在 Mermaid 处理前保存原始源码（处理后原文会被 SVG 替换）
+  const sources = new Map();
+  document.querySelectorAll('pre.mermaid').forEach(el => {
+    sources.set(el, el.textContent.trim());
   });
+
+  const renderMermaid = async () => {
+    mermaid.initialize({ startOnLoad: false, theme: getMermaidTheme() });
+    sources.forEach((src, el) => {
+      el.textContent = src;
+      el.removeAttribute('data-processed');
+    });
+    await mermaid.run({ querySelector: 'pre.mermaid' });
+  };
+
+  await renderMermaid();
+
+  // 页面亮/暗切换时重绘
+  window.addEventListener('theme-changed', renderMermaid);
 </script>
 {{ end }}
 

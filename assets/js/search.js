@@ -36,6 +36,8 @@
       document.documentElement.style.background = nextTheme === "dark" ? BG_DARK : BG_LIGHT;
       localStorage.setItem("theme", nextTheme);
       updateThemeButton();
+      // 通知 Shiki / Mermaid 等模块响应主题变化
+      window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme: nextTheme } }));
     });
   }
 
@@ -193,53 +195,7 @@
     toast._timer = setTimeout(() => toast.classList.remove("visible"), 2000);
   };
 
-  // ── 代码块：语言标签 + 复制按钮（带 fallback + toast）──
-  const copyIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-  const checkIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-
-  const copyText = async (text) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-  };
-
-  document.querySelectorAll(".post-content .highlight").forEach((block) => {
-    const pre = block.querySelector("pre");
-    const code = pre?.querySelector("code");
-    const langClass = code?.className.match(/language-(\w+)/);
-    if (langClass) block.dataset.lang = langClass[1];
-
-    const btn = document.createElement("button");
-    btn.className = "code-copy-btn";
-    btn.setAttribute("aria-label", "复制代码");
-    btn.innerHTML = copyIconSvg;
-    block.appendChild(btn);
-
-    btn.addEventListener("click", async () => {
-      const text = code?.innerText ?? pre?.innerText ?? "";
-      try {
-        await copyText(text);
-        btn.classList.add("copied");
-        btn.innerHTML = checkIconSvg;
-        showToast("已复制到剪贴板");
-        setTimeout(() => {
-          btn.classList.remove("copied");
-          btn.innerHTML = copyIconSvg;
-        }, 2000);
-      } catch {
-        showToast("复制失败，请手动选择");
-      }
-    });
-  });
+  // 代码块复制按钮由 shiki-hl.js 统一处理，此处不再重复添加
 
   // ── TOC 滚动高亮 ──
   const tocLinks = document.querySelectorAll(".toc-nav a");

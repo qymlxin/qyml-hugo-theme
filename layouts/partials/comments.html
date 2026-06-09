@@ -1,3 +1,22 @@
 <section class="comments-section">
-  <!-- 评论区占位，后续可替换为 Giscus/Utterances 等 -->
+  <h2 class="comments-title">评论</h2>
+  <div id="waline-comment"></div>
 </section>
+
+<script type="module">
+  import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/waline.js';
+  init({
+    el: '#waline-comment',
+    serverURL: 'http://124.222.227.81/waline',
+    lang: 'zh-CN',
+    dark: 'html[data-theme="dark"]',
+    login: 'force',
+    pageview: false,
+    comment: true,
+    imageUploader: false,
+    emoji: [
+      'https://cdn.jsdelivr.net/npm/@waline/emojis@1.2.0/weibo',
+      'https://cdn.jsdelivr.net/npm/@waline/emojis@1.2.0/bilibili',
+    ],
+  });
+</script>

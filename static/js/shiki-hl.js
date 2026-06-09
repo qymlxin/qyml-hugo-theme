@@ -1,0 +1,100 @@
+// Shiki 代码高亮：亮色 One Light / 暗色 One Dark Pro，随页面主题自动切换
+(async () => {
+  const pres = document.querySelectorAll('.post-content pre:not(.mermaid)');
+  if (!pres.length) return;
+
+  const LIGHT = 'one-light';
+  const DARK  = 'one-dark-pro';
+
+  const SVG_COPY = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  const SVG_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const isDark = () =>
+    document.documentElement.dataset.theme === 'dark' ||
+    (!document.documentElement.dataset.theme &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const langSet = new Set();
+  pres.forEach(pre => {
+    const m = pre.querySelector('code')?.className.match(/language-(\S+)/);
+    if (m) langSet.add(m[1]);
+  });
+
+  // 将每个 pre 替换为 .code-wrap（先用占位背景，Shiki 加载后再渲染）
+  const blocks = [];
+  pres.forEach(pre => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const m = code.className.match(/language-(\S+)/);
+    const lang = m ? m[1] : 'text';
+    const rawCode = code.textContent.trimEnd();
+
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+
+    wrap.innerHTML = `
+      <div class="code-header">
+        <span class="code-lang-label">${lang}</span>
+        <button class="code-copy-btn" title="复制代码" aria-label="复制代码">${SVG_COPY}</button>
+      </div>
+      <div class="code-body"><pre style="padding:1rem 1.25rem;margin:0;overflow-x:auto"><code>${esc(rawCode)}</code></pre></div>`;
+
+    pre.replaceWith(wrap);
+    blocks.push({ wrap, lang, rawCode });
+
+    // 复制按钮
+    const btn = wrap.querySelector('.code-copy-btn');
+    btn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(rawCode); }
+      catch {
+        const ta = Object.assign(document.createElement('textarea'), { value: rawCode });
+        Object.assign(ta.style, { position: 'fixed', opacity: '0' });
+        document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      }
+      btn.innerHTML = SVG_CHECK;
+      btn.style.opacity = '1';
+      setTimeout(() => { btn.innerHTML = SVG_COPY; btn.style.opacity = ''; }, 1800);
+    });
+  });
+
+  // 加载 Shiki（只需两个主题）
+  const { createHighlighter } = await import('https://esm.sh/shiki@1/bundle/web');
+  const langs = [...langSet].filter(Boolean);
+  const hl = await createHighlighter({
+    themes: [LIGHT, DARK],
+    langs: langs.length ? langs : ['text'],
+  });
+  const loaded = new Set(hl.getLoadedLanguages());
+
+  const applyTheme = () => {
+    const theme = isDark() ? DARK : LIGHT;
+    blocks.forEach(({ wrap, lang, rawCode }) => {
+      const useLang = loaded.has(lang) ? lang : 'text';
+      let html;
+      try { html = hl.codeToHtml(rawCode, { lang: useLang, theme }); }
+      catch { html = `<pre><code>${esc(rawCode)}</code></pre>`; }
+
+      const body = wrap.querySelector('.code-body');
+      body.innerHTML = html;
+
+      const shikiPre = body.querySelector('pre');
+      const bg = shikiPre?.style.backgroundColor || (theme === DARK ? '#282c34' : '#fafafa');
+      wrap.style.background = bg;
+      const header = wrap.querySelector('.code-header');
+      if (header) header.style.background = bg;
+      if (shikiPre) {
+        shikiPre.style.cssText =
+          'background:transparent;margin:0;border-radius:0;' +
+          'padding:1rem 1.25rem;overflow-x:auto;' +
+          'font-size:inherit;line-height:inherit;box-shadow:none;';
+      }
+    });
+  };
+
+  applyTheme();
+
+  // 页面主题切换时重新渲染
+  window.addEventListener('theme-changed', applyTheme);
+})();

@@ -39,6 +39,62 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 {{ end }}
 
+{{/* Waline 评论 CSS：仅文章页加载，紧跟主题色覆盖（必须在 waline.css 之后） */}}
+{{ if eq .Kind "page" }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@v3/dist/waline.css">
+<style>
+  /* 隐藏 Markdown 语法帮助链接（.wl-help 是 Waline v3 的实际类名） */
+  .wl-help,
+  a.wl-help,
+  .wl-editor a[href*="markdown"],
+  .wl-editor a[href*="mastering"],
+  .wl-footer a[href*="markdown"] {
+    display: none !important;
+  }
+
+  /* 亮色模式 */
+  :root {
+    --waline-theme-color:  #7a3e2a;
+    --waline-active-color: #5c2f20;
+    --waline-bgcolor:      #f7f5f0;
+    --waline-bgcolor-light:#fffcf7;
+    --waline-color:        #1a1917;
+    --waline-border-color: #dbd6cc;
+    --waline-border:       1px solid #dbd6cc;
+    --waline-bquote-bgcolor: #edeae3;
+    --waline-info-bgcolor: #fffcf7;
+    --waline-font-size:    0.9rem;
+    --waline-border-radius: 2px;
+  }
+  /* 暗色模式 —— data-theme 手动切换 */
+  [data-theme="dark"] {
+    --waline-theme-color:  #d4a088;
+    --waline-active-color: #e8bca6;
+    --waline-bgcolor:      #141312;
+    --waline-bgcolor-light:#1b1a18;
+    --waline-color:        #e8e4dc;
+    --waline-border-color: #33302b;
+    --waline-border:       1px solid #33302b;
+    --waline-bquote-bgcolor: #252320;
+    --waline-info-bgcolor: #1b1a18;
+  }
+  /* 暗色模式 —— 系统偏好 */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --waline-theme-color:  #d4a088;
+      --waline-active-color: #e8bca6;
+      --waline-bgcolor:      #141312;
+      --waline-bgcolor-light:#1b1a18;
+      --waline-color:        #e8e4dc;
+      --waline-border-color: #33302b;
+      --waline-border:       1px solid #33302b;
+      --waline-bquote-bgcolor: #252320;
+      --waline-info-bgcolor: #1b1a18;
+    }
+  }
+</style>
+{{ end }}
+
 {{ with resources.Get "js/vendor/fuse.min.js" }}
   {{ $fuse := . | fingerprint }}
   <script defer src="{{ $fuse.RelPermalink }}"></script>
