@@ -2,6 +2,7 @@
   const themeButton = document.querySelector("[data-theme-toggle]");
   const searchRoot = document.querySelector("[data-search-root]");
   const searchToggle = document.querySelector("[data-search-toggle]");
+  const searchBackdrop = document.querySelector("[data-search-backdrop]");
   const searchPanel = document.querySelector("[data-search-panel]");
   const searchInput = document.querySelector("[data-search-input]");
   const searchResults = document.querySelector("[data-search-results]");
@@ -103,6 +104,10 @@
 
   const openPanel = async () => {
     searchPanel.hidden = false;
+    if (searchBackdrop) {
+      searchBackdrop.hidden = false;
+      searchBackdrop.setAttribute("aria-hidden", "false");
+    }
     searchToggle.setAttribute("aria-expanded", "true");
     searchInput.focus();
 
@@ -124,6 +129,10 @@
 
   const closePanel = () => {
     searchPanel.hidden = true;
+    if (searchBackdrop) {
+      searchBackdrop.hidden = true;
+      searchBackdrop.setAttribute("aria-hidden", "true");
+    }
     searchToggle.setAttribute("aria-expanded", "false");
   };
 
@@ -159,6 +168,8 @@
       closePanel();
     }
   });
+
+  searchBackdrop?.addEventListener("click", closePanel);
 
   searchInput.addEventListener("input", () => {
     const query = searchInput.value.trim();
