@@ -89,6 +89,41 @@
     });
   }
 
+  document.querySelectorAll("[data-copy-value]").forEach((button) => {
+    const label = button.dataset.copyLabel || "内容";
+    const defaultTitle = button.title;
+
+    button.addEventListener("click", async () => {
+      const value = button.dataset.copyValue;
+      if (!value) return;
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const input = document.createElement("textarea");
+          input.value = value;
+          input.setAttribute("readonly", "");
+          input.style.position = "fixed";
+          input.style.opacity = "0";
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand("copy");
+          input.remove();
+        }
+
+        button.dataset.copyState = "copied";
+        button.title = `${label}已复制`;
+        window.setTimeout(() => {
+          delete button.dataset.copyState;
+          button.title = defaultTitle;
+        }, 1600);
+      } catch {
+        button.title = `无法复制${label}`;
+      }
+    });
+  });
+
   if (!searchRoot || !searchToggle || !searchPanel || !searchInput || !searchResults) return;
 
   let fuse;

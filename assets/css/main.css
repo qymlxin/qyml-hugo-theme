@@ -1783,6 +1783,41 @@ a:hover {
   background: var(--surface-soft);
 }
 
+.social-copy {
+  position: relative;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.social-copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.social-copy[data-copy-state="copied"] {
+  color: var(--accent);
+  background: var(--surface-soft);
+}
+
+.social-copy[data-copy-state="copied"]::after {
+  content: "已复制";
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  left: 50%;
+  z-index: 1;
+  padding: 0.18rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
 /* WeChat / QQ 文字标签（不可点击） */
 .social-badge {
   display: inline-flex;
