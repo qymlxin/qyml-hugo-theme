@@ -7,10 +7,12 @@
   const searchInput = document.querySelector("[data-search-input]");
   const searchResults = document.querySelector("[data-search-results]");
 
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
   const currentTheme = () => {
     const explicit = document.documentElement.dataset.theme;
     if (explicit) return explicit;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return systemTheme.matches ? "dark" : "light";
   };
 
   const updateThemeButton = () => {
@@ -24,20 +26,36 @@
     }
   };
 
-  // Read the shared CSS background token rather than duplicating theme colors.
+  const setTheme = (theme, persist = false) => {
+    const previousTheme = currentTheme();
+    document.documentElement.dataset.theme = theme;
+    // 让 CSS 变量接管背景色，避免残留旧主题的内联背景。
+    document.documentElement.style.removeProperty("background");
+    if (persist) localStorage.setItem("theme", theme);
+    updateThemeButton();
+    if (previousTheme !== theme) {
+      // 通知 Shiki / Mermaid 等模块响应主题变化。
+      window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme } }));
+    }
+  };
 
   if (themeButton) {
     updateThemeButton();
     themeButton.addEventListener("click", () => {
       const nextTheme = currentTheme() === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = nextTheme;
-      // 同步更新 html 的内联背景，保持两侧区域颜色正确
-      document.documentElement.style.removeProperty("background");
-      localStorage.setItem("theme", nextTheme);
-      updateThemeButton();
-      // 通知 Shiki / Mermaid 等模块响应主题变化
-      window.dispatchEvent(new CustomEvent("theme-changed", { detail: { theme: nextTheme } }));
+      setTheme(nextTheme, true);
     });
+  }
+
+  // 没有手动选择时，跟随操作系统的亮暗色设置动态切换。
+  const syncSystemTheme = () => {
+    if (localStorage.getItem("theme")) return;
+    setTheme(systemTheme.matches ? "dark" : "light");
+  };
+  if (systemTheme.addEventListener) {
+    systemTheme.addEventListener("change", syncSystemTheme);
+  } else {
+    systemTheme.addListener(syncSystemTheme);
   }
 
   const scrollTopBtn = document.querySelector("[data-scroll-top]");
@@ -94,6 +112,18 @@
         setNavOpen(false);
       }
     });
+
+    const mobileNavMedia = window.matchMedia("(max-width: 640px)");
+    const syncNavMode = () => {
+      // Clear the desktop hover/focus state before the mobile layout is painted.
+      setNavOpen(false);
+      nav.dataset.navMode = mobileNavMedia.matches ? "mobile" : "desktop";
+      nav.querySelectorAll(".nav-dropdown").forEach((dropdown) => {
+        dropdown.classList.remove("is-collapsed");
+      });
+    };
+    syncNavMode();
+    mobileNavMedia.addEventListener("change", syncNavMode);
   }
 
   document.querySelectorAll("[data-copy-value]").forEach((button) => {

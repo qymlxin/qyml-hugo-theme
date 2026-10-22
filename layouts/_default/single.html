@@ -55,25 +55,78 @@
   const getMermaidTheme = () =>
     document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
 
-  // 在 Mermaid 处理前保存原始源码（处理后原文会被 SVG 替换）
-  const sources = new Map();
-  document.querySelectorAll('pre.mermaid').forEach(el => {
-    sources.set(el, el.textContent.trim());
-  });
-
-  const renderMermaid = async () => {
-    mermaid.initialize({ startOnLoad: false, theme: getMermaidTheme() });
-    sources.forEach((src, el) => {
-      el.textContent = src;
-      el.removeAttribute('data-processed');
-    });
-    await mermaid.run({ querySelector: 'pre.mermaid' });
+  const getMermaidThemeVariables = () => {
+    const dark = getMermaidTheme() === 'dark';
+    return dark ? {
+      background: '#171717',
+      primaryColor: '#262626',
+      primaryTextColor: '#ededed',
+      primaryBorderColor: '#525252',
+      lineColor: '#a3a3a3',
+      secondaryColor: '#202020',
+      tertiaryColor: '#1f1f1f',
+      textColor: '#ededed',
+      mainBkg: '#262626',
+      nodeBorder: '#525252',
+      clusterBkg: '#202020',
+      clusterBorder: '#404040'
+    } : {
+      background: '#f4f5f7',
+      primaryColor: '#ffffff',
+      primaryTextColor: '#27343a',
+      primaryBorderColor: '#cfd4da',
+      lineColor: '#69777a',
+      secondaryColor: '#f8f9fa',
+      tertiaryColor: '#eef0f3',
+      textColor: '#27343a',
+      mainBkg: '#ffffff',
+      nodeBorder: '#cfd4da',
+      clusterBkg: '#eef0f3',
+      clusterBorder: '#cfd4da'
+    };
   };
 
-  await renderMermaid();
+  // 在 Mermaid 处理前保存原始源码（处理后原文会被 SVG 替换）
+  const sources = new Map();
+  document.querySelectorAll('pre.mermaid').forEach((el, index) => {
+    sources.set(el, {
+      source: el.textContent.trim(),
+      id: `mermaid-diagram-${index}`
+    });
+  });
 
-  // 页面亮/暗切换时重绘
+  let renderGeneration = 0;
+  const renderMermaid = async () => {
+    const generation = ++renderGeneration;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: getMermaidTheme(),
+      themeVariables: getMermaidThemeVariables()
+    });
+
+    for (const [el, { source, id }] of sources) {
+      const wrap = el.closest('.mermaid-wrap');
+      wrap?.classList.add('is-rendering');
+      try {
+        // Render off to the side of the visible DOM, then swap the SVG in one
+        // operation. The previous SVG stays in place while the new one renders.
+        const result = await mermaid.render(`${id}-${generation}`, source);
+        if (generation !== renderGeneration) continue;
+        const fragment = document.createRange().createContextualFragment(result.svg);
+        el.replaceChildren(fragment);
+        result.bindFunctions?.(el);
+      } catch (error) {
+        console.error('Mermaid rendering failed:', error);
+        if (!el.querySelector('svg')) el.textContent = source;
+      } finally {
+        if (generation === renderGeneration) wrap?.classList.remove('is-rendering');
+      }
+    }
+  };
+
+  // 页面亮/暗切换时重绘；先注册监听器，避免初次渲染阻塞后续主题响应。
   window.addEventListener('theme-changed', renderMermaid);
+  renderMermaid();
 </script>
 {{ end }}
 
@@ -92,14 +145,14 @@
 </script>
 {{ end }}
 
-{{/* 移动端目录抽屉（< 1080px 时由 fab-toc 触发） */}}
+{{/* 移动端目录抽屉（< 1080px 时由右下角目录按钮触发） */}}
 {{ if .TableOfContents }}
 <div class="mob-drawer" id="mob-drawer">
   <div class="mob-drawer-overlay" data-mob-drawer-close></div>
   <div class="mob-drawer-panel">
     <div class="mob-drawer-head">
       <span class="mob-drawer-title">目录</span>
-      <button class="mob-drawer-close" type="button" data-mob-drawer-close aria-label="关闭">
+      <button class="mob-drawer-close" type="button" data-mob-drawer-close aria-label="关闭目录">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
     </div>

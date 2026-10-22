@@ -76,20 +76,19 @@
       try { html = hl.codeToHtml(rawCode, { lang: useLang, theme }); }
       catch { html = `<pre><code>${esc(rawCode)}</code></pre>`; }
 
-      const body = wrap.querySelector('.code-body');
-      body.innerHTML = html;
+      // Prepare the Shiki node before attaching it, so a theme change never
+      // paints an unstyled pre or replaces the stable code-block background.
+      const rendered = document.createElement('div');
+      rendered.innerHTML = html;
+      const shikiPre = rendered.querySelector('pre');
+      if (!shikiPre) return;
 
-      const shikiPre = body.querySelector('pre');
-      const bg = shikiPre?.style.backgroundColor || (theme === DARK ? '#282c34' : '#fafafa');
-      wrap.style.background = bg;
-      const header = wrap.querySelector('.code-header');
-      if (header) header.style.background = bg;
-      if (shikiPre) {
-        shikiPre.style.cssText =
-          'background:transparent;margin:0;border-radius:0;' +
-          'padding:1rem 1.25rem;overflow-x:auto;' +
-          'font-size:inherit;line-height:inherit;box-shadow:none;';
-      }
+      shikiPre.style.cssText =
+        'background:transparent;margin:0;border-radius:0;' +
+        'padding:1rem 1.15rem;overflow-x:auto;' +
+        'font-size:inherit;line-height:inherit;box-shadow:none;';
+      wrap.dataset.codeTheme = theme === DARK ? 'dark' : 'light';
+      wrap.querySelector('.code-body').replaceChildren(shikiPre);
     });
   };
 
