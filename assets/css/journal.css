@@ -561,3 +561,219 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* Editorial reading page: quiet hierarchy, generous measure, and clear anchors. */
+.article-layout {
+  grid-template-columns: minmax(0, 48rem) 13rem;
+  gap: 4rem;
+}
+.article-layout .post {
+  max-width: 48rem;
+  padding: 0 0 4rem;
+}
+.article-layout .post-header {
+  position: relative;
+  margin-bottom: 3rem;
+  padding: 0 0 1.65rem;
+  border-bottom: 1px solid var(--border);
+}
+.article-layout .post-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 3rem;
+  height: 2px;
+  background: var(--accent);
+}
+.article-layout .post-header-cats {
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+.article-layout .post-header-cats .post-cat {
+  padding: 0;
+  border: 0;
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.article-layout .post-header h1 {
+  max-width: 44rem;
+  margin: 0;
+  color: var(--text);
+  font-family: Georgia, var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.25;
+}
+.article-layout .post-meta {
+  gap: 0.4rem 0.8rem;
+  margin-top: 1.15rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+.article-layout .post-meta time {
+  color: var(--text);
+  font-weight: 600;
+}
+.article-layout .post-meta-divider { color: var(--border); }
+.article-layout .post-content {
+  max-width: 44rem;
+  color: var(--text);
+  font-size: 1.03rem;
+  letter-spacing: 0.012em;
+  line-height: 2;
+}
+.article-layout .post-content > * + * { margin-top: 1.5rem; }
+.article-layout .post-content p { margin-bottom: 0; }
+.article-layout .post-content > p:first-child {
+  margin-bottom: 2.2rem;
+  color: var(--text);
+  font-size: 1.12rem;
+  line-height: 2;
+}
+.article-layout .post-content h2,
+.article-layout .post-content h3,
+.article-layout .post-content h4 {
+  font-family: var(--font-serif);
+  letter-spacing: 0;
+}
+.article-layout .post-content h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 3.6rem;
+  margin-bottom: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.article-layout .post-content h2::before {
+  content: "";
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 2px;
+  background: var(--accent);
+}
+.article-layout .post-content h3 {
+  margin-top: 2.4rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.14rem;
+  line-height: 1.55;
+}
+.article-layout .post-content strong { font-weight: 700; color: var(--text); }
+.article-layout .post-content ul,
+.article-layout .post-content ol {
+  padding-left: 1.35rem;
+}
+.article-layout .post-content li + li { margin-top: 0.35rem; }
+.article-layout .post-content blockquote {
+  margin: 1.8rem 0;
+  padding: 0.95rem 1.2rem;
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  background: var(--surface-soft);
+  color: var(--muted);
+  line-height: 1.85;
+}
+.article-layout .post-content .katex-display {
+  margin: 1.9rem 0;
+  padding: 1rem 0.75rem;
+  overflow-x: auto;
+  border-left: 2px solid var(--accent-soft);
+  background: color-mix(in srgb, var(--surface-soft) 58%, transparent);
+}
+.article-layout .post-content img {
+  display: block;
+  max-width: 100%;
+  margin: 2rem auto;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+.article-layout .post-content .code-wrap {
+  margin: 2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(39, 52, 58, 0.06);
+}
+.article-layout .post-content .code-header {
+  min-height: 2.2rem;
+  background: var(--surface-soft);
+}
+.article-layout .post-content .code-body .shiki,
+.article-layout .post-content pre:not(.mermaid) {
+  font-size: 0.86rem;
+  line-height: 1.75;
+}
+.article-layout .post-content .code-body .shiki { padding: 1.2rem 1.3rem !important; }
+.article-layout .post-content table {
+  margin: 2rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.article-layout .post-content table thead th { padding: 0.7rem 0.85rem; }
+.article-layout .post-content table td { padding: 0.65rem 0.85rem; }
+.article-layout .article-toc {
+  padding-left: 1.35rem;
+  border-left: 1px solid var(--border);
+}
+.article-layout .toc-title {
+  margin-bottom: 0.9rem;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.article-layout .toc-nav a {
+  padding: 0.32rem 0 0.32rem 0.65rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+.article-layout .toc-nav a:hover,
+.article-layout .toc-nav a.toc-active {
+  border-left-color: var(--accent);
+  color: var(--accent);
+  background: transparent;
+}
+.article-layout .comments-section {
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.article-layout .comments-title {
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+@media (max-width: 1079px) {
+  .article-layout { display: block; }
+  .article-layout .post { max-width: none; }
+  .article-layout .post-content { max-width: 46rem; }
+  .article-layout .article-toc { display: none; }
+}
+
+@media (max-width: 760px) {
+  .article-layout .post { padding-bottom: 2.5rem; }
+  .article-layout .post-header { margin-bottom: 2.2rem; padding-bottom: 1.35rem; }
+  .article-layout .post-header h1 { font-size: clamp(1.85rem, 9vw, 2.45rem); line-height: 1.3; }
+  .article-layout .post-meta { font-size: 0.7rem; }
+  .article-layout .post-content { font-size: 0.98rem; line-height: 1.95; }
+  .article-layout .post-content > p:first-child { font-size: 1.04rem; line-height: 1.95; }
+  .article-layout .post-content h2 { margin-top: 3rem; font-size: 1.35rem; }
+  .article-layout .post-content .code-wrap { margin-right: -0.25rem; margin-left: -0.25rem; }
+  .article-layout .post-content .code-body .shiki,
+  .article-layout .post-content pre:not(.mermaid) { font-size: 0.78rem; }
+}
