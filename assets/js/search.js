@@ -24,9 +24,7 @@
     }
   };
 
-  // 与 baseof.html 初始化脚本保持一致的背景色常量
-  const BG_DARK = "#141312";
-  const BG_LIGHT = "#f7f5f0";
+  // Read the shared CSS background token rather than duplicating theme colors.
 
   if (themeButton) {
     updateThemeButton();
@@ -34,7 +32,7 @@
       const nextTheme = currentTheme() === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = nextTheme;
       // 同步更新 html 的内联背景，保持两侧区域颜色正确
-      document.documentElement.style.background = nextTheme === "dark" ? BG_DARK : BG_LIGHT;
+      document.documentElement.style.removeProperty("background");
       localStorage.setItem("theme", nextTheme);
       updateThemeButton();
       // 通知 Shiki / Mermaid 等模块响应主题变化
@@ -52,6 +50,15 @@
     scrollTopBtn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+  }
+
+  const siteHeader = document.querySelector(".site-header");
+  if (siteHeader) {
+    const updateHeaderState = () => {
+      siteHeader.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+    updateHeaderState();
+    window.addEventListener("scroll", updateHeaderState, { passive: true });
   }
 
   const navToggle = document.querySelector("[data-nav-toggle]");

@@ -31,5 +31,5 @@
 {{- end -}}
 
 {{- with $summary -}}
-<p class="post-item-summary">{{ . }}</p>
+<p class="post-item-summary">{{ . | htmlUnescape }}</p>
 {{- end -}}

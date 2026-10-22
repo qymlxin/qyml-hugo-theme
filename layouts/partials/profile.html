@@ -1,112 +1,65 @@
-{{/* 右侧栏个人资料卡片 */}}
-<div class="side-block profile-block">
-
-  {{/* 头像 */}}
-  {{ with site.Params.avatar }}
-    <div class="profile-avatar">
-      <img src="{{ . }}" alt="{{ site.Params.author | default site.Title }}" loading="lazy">
+{{/* 右侧栏个人信息，与话题和归档共用标题层级 */}}
+<section class="side-block profile-block" aria-labelledby="profile-title">
+  <h2 class="side-title" id="profile-title">关于我</h2>
+  <div class="profile-heading">
+    {{ with site.Params.avatar }}
+      <div class="profile-avatar">
+        <img src="{{ . }}" alt="{{ site.Params.author | default site.Title }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false">
+        <span class="profile-avatar-fallback" hidden aria-hidden="true">Q</span>
+      </div>
+    {{ end }}
+    <div class="profile-identity">
+      {{ with site.Params.author }}
+        <p class="profile-name">{{ . }}</p>
+      {{ end }}
+      {{ with site.Params.location }}
+        <p class="profile-location">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span>{{ . }}</span>
+        </p>
+      {{ end }}
     </div>
-  {{ end }}
-
-  {{/* 作者名 */}}
-  {{ with site.Params.author }}
-    <p class="profile-name">{{ . }}</p>
-  {{ end }}
-
-  {{/* Slogan（引号由 CSS 添加） */}}
+  </div>
   {{ with site.Params.slogan | default site.Params.subtitle }}
     <p class="profile-slogan">{{ . }}</p>
   {{ end }}
 
-  {{/* 地址 */}}
-  {{ with site.Params.location }}
-    <p class="profile-location">
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span>{{ . }}</span>
-    </p>
-  {{ end }}
-
-  {{/* 社交账号 */}}
   {{ with site.Params.social }}
   {{ $s := . }}
-  <div class="profile-divider"></div>
   <div class="social-links">
-
     {{ with $s.github }}
-    <a class="social-link" href="https://github.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="GitHub: {{ . }}" aria-label="GitHub">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-    </a>
+    <a class="social-link" href="https://github.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="GitHub: {{ . }}" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg></a>
     {{ end }}
-
     {{ with $s.gitee }}
-    <a class="social-link" href="https://gitee.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="Gitee: {{ . }}" aria-label="Gitee">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.984 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.016 0zm6.09 5.333c.328 0 .593.266.592.593v1.482a.594.594 0 0 1-.593.592H9.777c-.982 0-1.778.796-1.778 1.778v5.63c0 .327.266.592.593.592h5.63c.982 0 1.778-.796 1.778-1.778v-.296a.593.593 0 0 0-.592-.593h-4.15a.592.592 0 0 1-.592-.592v-1.482a.593.593 0 0 1 .593-.592h6.815c.327 0 .593.265.593.592v3.408a4 4 0 0 1-4 4H5.926a.593.593 0 0 1-.593-.593V9.778a4.444 4.444 0 0 1 4.445-4.444h8.296z"/></svg>
-    </a>
+    <a class="social-link" href="https://gitee.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="Gitee: {{ . }}" aria-label="Gitee"><span>码</span></a>
     {{ end }}
-
     {{ with $s.instagram }}
-    <a class="social-link" href="https://instagram.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="Instagram: @{{ . }}" aria-label="Instagram">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-    </a>
+    <a class="social-link" href="https://instagram.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="Instagram: @{{ . }}" aria-label="Instagram"><span>IG</span></a>
     {{ end }}
-
     {{ with $s.telegram }}
-    <a class="social-link" href="https://t.me/{{ . }}" target="_blank" rel="noopener noreferrer" title="Telegram: @{{ . }}" aria-label="Telegram">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-    </a>
+    <a class="social-link" href="https://t.me/{{ . }}" target="_blank" rel="noopener noreferrer" title="Telegram: @{{ . }}" aria-label="Telegram"><span>↗</span></a>
     {{ end }}
-
     {{ with $s.twitter }}
-    <a class="social-link" href="https://x.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="X: @{{ . }}" aria-label="X (Twitter)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-    </a>
+    <a class="social-link" href="https://x.com/{{ . }}" target="_blank" rel="noopener noreferrer" title="X: @{{ . }}" aria-label="X (Twitter)"><span>𝕏</span></a>
     {{ end }}
-
     {{ with $s.weibo }}
-    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://weibo.com/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="微博: {{ . }}" aria-label="微博">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.44 1.594l.002-.002zm2.302-1.479c-.138.237-.438.353-.669.26-.226-.09-.298-.361-.165-.595.131-.229.42-.349.653-.265.234.086.315.357.181.6zm.19-2.66c-1.09-.269-2.311-.07-3.217.567-1.13.793-1.408 1.921-.73 2.971.697 1.083 2.189 1.679 3.649 1.519 2.009-.225 3.379-1.546 3.048-2.939-.303-1.28-1.641-1.875-2.75-2.118zm8.583-6.007l-1.224.099-.169.018c-1.256.168-2.015.748-2.465 1.648-.177.356-.267.74-.267 1.136 0 .4.089.79.267 1.153.217.45.556.831.985 1.1.399.25.862.4 1.358.415l.072.002.08-.003.406-.031.266-.025c.14-.012.278-.019.415-.019.19 0 .378.013.564.037.338.044.637.153.891.318.28.18.462.44.511.738.047.289-.042.584-.242.826l-.006.008c-.294.368-.764.643-1.33.81-.549.163-1.155.226-1.754.185-1.276-.086-2.389-.604-2.954-1.379-.291-.396-.415-.861-.354-1.318.063-.471.323-.9.725-1.229a.378.378 0 0 0 .116-.143.382.382 0 0 0 .033-.156.401.401 0 0 0-.381-.402.394.394 0 0 0-.302.118c-.551.479-.9 1.115-.98 1.797-.082.697.12 1.389.563 1.961.821 1.069 2.244 1.704 3.802 1.807.737.049 1.488-.028 2.177-.227.824-.244 1.515-.68 1.967-1.249.44-.555.619-1.218.5-1.879-.104-.579-.435-1.09-.939-1.446-.435-.305-.979-.5-1.574-.578a6.102 6.102 0 0 0-.733-.047c-.2 0-.398.011-.594.032l-.265.025-.257.019-.05.002-.042-.001c-.247-.008-.474-.075-.661-.198a1.034 1.034 0 0 1-.452-.594 1.063 1.063 0 0 1 .149-.867c.277-.43.786-.72 1.457-.815l.098-.013 1.258-.102c2.552-.22 4.469-2.161 4.469-4.452 0-2.494-2.238-4.498-5.067-4.498-1.215 0-2.333.393-3.209 1.051-.282.21-.541.448-.774.711l-.025.028-.026.028-1.222 1.362.012.01-.011.012 1.14 1.021 1.24-1.382.026-.029.025-.027c.178-.195.374-.371.584-.527.625-.463 1.393-.726 2.24-.726 1.919 0 3.467 1.411 3.467 3.151-.003 1.622-1.338 2.94-3.06 3.09z"/></svg>
-    </a>
+    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://weibo.com/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="微博: {{ . }}" aria-label="微博"><span>博</span></a>
     {{ end }}
-
     {{ with $s.bilibili }}
-    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://space.bilibili.com/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="哔哩哔哩" aria-label="哔哩哔哩">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/></svg>
-    </a>
+    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://space.bilibili.com/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="哔哩哔哩" aria-label="哔哩哔哩"><span>哔</span></a>
     {{ end }}
-
     {{ with $s.douyin }}
-    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://www.douyin.com/user/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="抖音" aria-label="抖音">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.67a8.18 8.18 0 0 0 4.83 1.55V6.78a4.85 4.85 0 0 1-1.06-.09z"/></svg>
-    </a>
+    <a class="social-link" href="{{ if hasPrefix . "http" }}{{ . }}{{ else }}https://www.douyin.com/user/{{ . }}{{ end }}" target="_blank" rel="noopener noreferrer" title="抖音" aria-label="抖音"><span>音</span></a>
     {{ end }}
-
-    {{ with $s.email }}
-    <button class="social-link social-copy" type="button" data-copy-value="{{ . }}" data-copy-label="邮箱" title="点击复制邮箱: {{ . }}" aria-label="复制邮箱: {{ . }}">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-    </button>
-    {{ end }}
-
     {{ with $s.website }}
-    <a class="social-link" href="{{ . }}" target="_blank" rel="noopener noreferrer" title="个人网站" aria-label="个人网站">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    </a>
+    <a class="social-link" href="{{ . }}" target="_blank" rel="noopener noreferrer" title="个人网站" aria-label="个人网站"><span>↗</span></a>
     {{ end }}
-
-    {{/* 微信：无公开链接，点击复制微信号 */}}
+    {{ with $s.email }}
+    <button class="social-link social-copy" type="button" data-copy-value="{{ . }}" data-copy-label="邮箱" title="点击复制邮箱: {{ . }}" aria-label="复制邮箱"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></button>
+    {{ end }}
     {{ with $s.wechat }}
-    <button class="social-link social-copy" type="button" data-copy-value="{{ . }}" data-copy-label="微信号" title="点击复制微信号: {{ . }}" aria-label="复制微信号: {{ . }}">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 10.436 7.17c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.258 1.786-1.966 1.648-2.48 4.237-1.43 6.4.68 1.377 1.806 2.425 3.235 3.047.396.175.44.477.298.844l-.308 1.168a.415.415 0 0 0-.038.162c0 .13.107.23.24.23a.276.276 0 0 0 .138-.044l1.574-.922a.722.722 0 0 1 .592-.08 8.715 8.715 0 0 0 2.137.274c3.915 0 7.064-2.763 7.064-6.194 0-3.433-3.15-6.195-7.063-6.195h-.181zm-2.49 3.293c.55 0 .997.45.997 1.003a1 1 0 0 1-.997 1.003 1 1 0 0 1-.997-1.003c0-.552.446-1.003.997-1.003zm5.13 0c.55 0 .997.45.997 1.003a1 1 0 0 1-.997 1.003 1 1 0 0 1-.997-1.003c0-.552.447-1.003.997-1.003z"/></svg>
-    </button>
+    <button class="social-link social-copy" type="button" data-copy-value="{{ . }}" data-copy-label="微信号" title="点击复制微信号: {{ . }}" aria-label="复制微信号"><span>微</span></button>
     {{ end }}
-
-    {{/* QQ：无公开链接，点击复制 QQ 号 */}}
-    {{ with $s.qq }}
-    <button class="social-link social-copy" type="button" data-copy-value="{{ . }}" data-copy-label="QQ 号" title="点击复制 QQ 号: {{ . }}" aria-label="复制 QQ 号: {{ . }}">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.003 2c-4.265 0-7.86 2.914-7.86 7.17 0 1.317.32 2.541.9 3.629L3.11 15.96c-.173.493-.038.862.48.862.046 0 .097-.005.153-.017l3.036-.698a8.36 8.36 0 0 0 5.225 1.82c4.264 0 7.86-2.914 7.86-7.17C19.862 6.51 16.266 2 12.002 2zM9.4 11.3a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm5.2 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/></svg>
-    </button>
-    {{ end }}
-
   </div>
   {{ end }}
-
-</div>
+</section>
