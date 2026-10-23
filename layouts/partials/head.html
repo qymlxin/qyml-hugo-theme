@@ -1,7 +1,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{{ $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) }}
+{{ $pageTitle := .Title }}
+{{ if eq .Kind "taxonomy" }}
+  {{ if eq .Data.Singular "category" }}
+    {{ $pageTitle = "分类" }}
+  {{ else if eq .Data.Singular "tag" }}
+    {{ $pageTitle = "标签" }}
+  {{ end }}
+{{ end }}
+{{ $title := cond .IsHome site.Title (printf "%s | %s" $pageTitle site.Title) }}
 {{ $description := .Description | default .Summary | default site.Params.description | default site.Title | plainify }}
 
 <title>

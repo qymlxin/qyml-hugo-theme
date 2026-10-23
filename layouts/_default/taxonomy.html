@@ -1,8 +1,9 @@
 {{ define "main" }}
 {{ if eq .Kind "taxonomy" }}
+{{ $taxonomyTitle := cond (eq .Data.Singular "category") "分类" "标签" }}
 <section class="taxonomy-page">
   <header class="post-header">
-    <h1 class="page-title">{{ .Title }}</h1>
+    <h1 class="page-title">{{ $taxonomyTitle }}</h1>
     <p class="page-description">共 {{ len .Data.Terms }} 个{{ if eq .Data.Singular "category" }}分类{{ else }}标签{{ end }}</p>
   </header>
 

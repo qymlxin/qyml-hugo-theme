@@ -62,7 +62,14 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
   background: var(--bg);
+}
+
+@media (min-width: 641px) {
+  html {
+    overflow-y: scroll;
+  }
 }
 
 body {
