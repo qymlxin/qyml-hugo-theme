@@ -1,6 +1,14 @@
 {{ define "main" }}
 {{ $hasTOC := and .TableOfContents (strings.Contains .TableOfContents "<a") }}
-<div class="article-layout{{ if not $hasTOC }} article-layout--no-toc{{ end }}">
+{{ $displayName := site.Params.author | default site.Title }}
+{{ $initial := substr $displayName 0 1 | upper }}
+{{ $related := site.RegularPages.Related . | first 4 }}
+{{ $relatedTitle := "相关阅读" }}
+{{ if not $related }}
+  {{ $related = where site.RegularPages.ByDate.Reverse "RelPermalink" "ne" .RelPermalink | first 4 }}
+  {{ $relatedTitle = "推荐阅读" }}
+{{ end }}
+<div class="article-layout">
 
   <article class="post">
     <header class="post-header">
@@ -57,26 +65,101 @@
     {{ partial "comments.html" . }}
   </article>
 
-  {{ if $hasTOC }}
-  <aside class="article-toc" aria-label="文章目录" data-toc-card>
-    <div class="toc-block">
-      <div class="toc-head">
-        <span class="toc-title">目录</span>
-        <div class="toc-head-right">
-          <span class="toc-progress" data-toc-progress aria-label="阅读进度">0%</span>
-          <button class="toc-collapse-btn" type="button" data-toc-collapse aria-expanded="true" aria-label="收起目录" title="收起/展开目录">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </button>
+  <aside class="article-sidebar" aria-label="文章侧边栏">
+    <section class="float-card article-author-card" aria-label="作者信息">
+      <div class="article-author-head">
+        <a class="article-author-avatar" href="{{ site.Home.RelPermalink }}" aria-label="{{ $displayName }}">
+          {{ with site.Params.avatar }}
+            <img src="{{ . | relURL }}" alt="{{ $displayName }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false">
+            <span class="profile-avatar-fallback" hidden aria-hidden="true">{{ $initial }}</span>
+          {{ else }}
+            <span class="profile-avatar-fallback" aria-hidden="true">{{ $initial }}</span>
+          {{ end }}
+        </a>
+        <div class="article-author-info">
+          <a class="article-author-name" href="{{ site.Home.RelPermalink }}">{{ $displayName }}</a>
+          {{ with site.Params.subtitle | default site.Params.location }}
+            <p class="article-author-slogan">{{ . }}</p>
+          {{ end }}
         </div>
       </div>
-      <div class="toc-body" data-toc-body>
-        <nav class="toc-nav">
-          {{ .TableOfContents }}
-        </nav>
+
+      <div class="profile-stats" aria-label="博客统计">
+        <a class="profile-stat" href="{{ "posts/" | relURL }}">
+          <strong>{{ len site.RegularPages }}</strong>
+          <span>文章</span>
+        </a>
+        <a class="profile-stat" href="{{ "categories/" | relURL }}">
+          <strong>{{ len site.Taxonomies.categories }}</strong>
+          <span>分类</span>
+        </a>
+        <a class="profile-stat" href="{{ "tags/" | relURL }}">
+          <strong>{{ len site.Taxonomies.tags }}</strong>
+          <span>标签</span>
+        </a>
       </div>
+    </section>
+
+    <div class="article-sidebar-sticky">
+      {{ if $hasTOC }}
+      <section class="article-toc" aria-label="文章目录" data-toc-card>
+        <div class="toc-block">
+          <div class="toc-head">
+            <span class="toc-title">目录</span>
+            <div class="toc-head-right">
+              <span class="toc-progress" data-toc-progress aria-label="阅读进度">0%</span>
+              <button class="toc-collapse-btn" type="button" data-toc-collapse aria-expanded="true" aria-label="收起目录" title="收起/展开目录">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+            </div>
+          </div>
+          <div class="toc-body" data-toc-body>
+            <nav class="toc-nav">
+              {{ .TableOfContents }}
+            </nav>
+          </div>
+        </div>
+      </section>
+      {{ end }}
+
+      {{ with $related }}
+      <section class="float-card article-related-card">
+        <div class="float-card-head">
+          <h2 class="side-title">{{ $relatedTitle }}</h2>
+          <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+        </div>
+        <ul class="article-related-list">
+          {{ range . }}
+            <li class="article-related-item">
+              <a class="article-related-link" href="{{ .RelPermalink }}">
+                <span class="article-related-title">{{ .Title }}</span>
+                <span class="article-related-meta">
+                  {{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
+                </span>
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+      {{ end }}
+
+      {{ if not $hasTOC }}
+        {{ with site.Taxonomies.tags }}
+        <section class="float-card">
+          <div class="float-card-head">
+            <h2 class="side-title">热门标签</h2>
+            <a class="side-more" href="{{ "tags/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="side-tags">
+            {{ range first 10 .ByCount }}
+              <a class="side-tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span>{{ .Count }}</span></a>
+            {{ end }}
+          </div>
+        </section>
+        {{ end }}
+      {{ end }}
     </div>
   </aside>
-  {{ end }}
 
 </div>
 
