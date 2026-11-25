@@ -1,4 +1,17 @@
-<div class="mermaid-wrap">
-  <pre class="mermaid">{{- .Inner | safeHTML -}}</pre>
+<div class="mermaid-wrap" data-mermaid-wrap>
+  <div class="mermaid-toolbar" aria-label="图表工具栏">
+    <span class="mermaid-badge">Mermaid</span>
+    <div class="mermaid-actions">
+      <button class="mermaid-btn" type="button" data-mermaid-zoom-out title="缩小" aria-label="缩小">−</button>
+      <span class="mermaid-zoom-label" data-mermaid-zoom-label>100%</span>
+      <button class="mermaid-btn" type="button" data-mermaid-zoom-in title="放大" aria-label="放大">+</button>
+      <button class="mermaid-btn" type="button" data-mermaid-reset title="重置视图" aria-label="重置视图">重置</button>
+      <button class="mermaid-btn" type="button" data-mermaid-copy title="复制源码" aria-label="复制源码">源码</button>
+      <button class="mermaid-btn" type="button" data-mermaid-fullscreen title="全屏预览" aria-label="全屏预览">全屏</button>
+    </div>
+  </div>
+  <div class="mermaid-viewport" data-mermaid-viewport>
+    <pre class="mermaid">{{- .Inner | htmlEscape | safeHTML -}}</pre>
+  </div>
 </div>
-{{ .Page.Store.Set "hasMermaid" true }}
+{{- .Page.Store.Set "hasMermaid" true -}}

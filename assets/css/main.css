@@ -1618,18 +1618,109 @@ img {
 
 .mermaid-wrap {
   margin: 1.8rem 0;
-  padding: 1.1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--mermaid-bg);
-  overflow-x: auto;
+  overflow: hidden;
+}
+
+.mermaid-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.42rem 0.75rem 0.42rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.mermaid-badge {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.mermaid-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.mermaid-zoom-label {
+  min-width: 2.85rem;
   text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mermaid-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.55rem;
+  padding: 0 0.48rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.mermaid-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.mermaid-btn.is-copied {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mermaid-viewport {
+  padding: 1.15rem;
+  overflow: auto;
+  text-align: center;
+}
+
+.mermaid-viewport.is-zoomed {
+  cursor: grab;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.mermaid-viewport.is-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .mermaid-wrap pre.mermaid {
   margin: 0;
   background: transparent !important;
   border: 0 !important;
+  transform-origin: center center;
+  transition: transform 0.12s ease-out;
+}
+
+.mermaid-viewport.is-dragging pre.mermaid {
+  transition: none;
+}
+
+.mermaid-wrap pre.mermaid svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
 }
 
 .mermaid-wrap.is-rendering .mermaid {
