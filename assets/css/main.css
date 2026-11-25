@@ -2290,7 +2290,7 @@ img {
 }
 
 .toc-body {
-  max-height: min(42vh, 21rem);
+  max-height: min(40vh, 20rem);
   padding: 0.55rem 0.5rem 0.7rem;
   overflow-y: auto;
   scrollbar-width: thin;

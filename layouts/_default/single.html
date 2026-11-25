@@ -2,11 +2,40 @@
 {{ $hasTOC := and .TableOfContents (strings.Contains .TableOfContents "<a") }}
 {{ $displayName := site.Params.author | default site.Title }}
 {{ $initial := substr $displayName 0 1 | upper }}
-{{ $related := site.RegularPages.Related . | first 4 }}
-{{ $relatedTitle := "相关阅读" }}
-{{ if not $related }}
-  {{ $related = where site.RegularPages.ByDate.Reverse "RelPermalink" "ne" .RelPermalink | first 4 }}
-  {{ $relatedTitle = "推荐阅读" }}
+{{ $related := slice }}
+{{ range (site.RegularPages.Related . | first 4) }}
+  {{ $related = $related | append . }}
+{{ end }}
+{{ if lt (len $related) 4 }}
+  {{ $cats := .Params.categories | default slice }}
+  {{ if $cats }}
+    {{ range site.RegularPages.ByDate.Reverse }}
+      {{ if and (ne .RelPermalink $.RelPermalink) (lt (len $related) 4) (not (in $related .)) }}
+        {{ if gt (len (intersect $cats (.Params.categories | default slice))) 0 }}
+          {{ $related = $related | append . }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $excludeUrls := slice .RelPermalink }}
+{{ range $related }}
+  {{ $excludeUrls = $excludeUrls | append .RelPermalink }}
+{{ end }}
+{{ $pool := where site.RegularPages.ByDate.Reverse "RelPermalink" "not in" $excludeUrls }}
+{{ $recommended := slice }}
+{{ range $pool }}
+  {{ if and .Params.featured (lt (len $recommended) 4) }}
+    {{ $recommended = $recommended | append . }}
+  {{ end }}
+{{ end }}
+{{ range $pool }}
+  {{ if and (not .Params.featured) (lt (len $recommended) 4) }}
+    {{ $recommended = $recommended | append . }}
+  {{ end }}
+{{ end }}
+{{ if not $recommended }}
+  {{ $recommended = where site.RegularPages.ByDate.Reverse "RelPermalink" "ne" .RelPermalink | first 4 }}
 {{ end }}
 <div class="article-layout">
 
@@ -100,6 +129,27 @@
       </div>
     </section>
 
+    {{ with $related }}
+    <section class="float-card article-related-card">
+      <div class="float-card-head">
+        <h2 class="side-title">相关阅读</h2>
+        <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="article-related-list">
+        {{ range . }}
+          <li class="article-related-item">
+            <a class="article-related-link" href="{{ .RelPermalink }}">
+              <span class="article-related-title">{{ .Title }}</span>
+              <span class="article-related-meta">
+                {{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
+              </span>
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    </section>
+    {{ end }}
+
     <div class="article-sidebar-sticky">
       {{ if $hasTOC }}
       <section class="article-toc" aria-label="文章目录" data-toc-card>
@@ -122,10 +172,10 @@
       </section>
       {{ end }}
 
-      {{ with $related }}
-      <section class="float-card article-related-card">
+      {{ with $recommended }}
+      <section class="float-card article-recommended-card">
         <div class="float-card-head">
-          <h2 class="side-title">{{ $relatedTitle }}</h2>
+          <h2 class="side-title">推荐阅读</h2>
           <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
         </div>
         <ul class="article-related-list">
@@ -134,7 +184,7 @@
               <a class="article-related-link" href="{{ .RelPermalink }}">
                 <span class="article-related-title">{{ .Title }}</span>
                 <span class="article-related-meta">
-                  {{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
+                  {{ if .Params.featured }}精选 · {{ end }}{{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
                 </span>
               </a>
             </li>
