@@ -619,12 +619,63 @@
   const tocCollapseBtn = document.querySelector("[data-toc-collapse]");
   const tocBody = document.querySelector("[data-toc-body]");
   const tocLinks = document.querySelectorAll(".toc-nav a");
+  const sidebarSticky = document.querySelector("[data-sidebar-sticky]");
+  const overflowCard = sidebarSticky?.querySelector("[data-sidebar-overflow-card]");
+  const authorCard = document.querySelector(".article-author-card");
+
+  let expandedCardHeight = overflowCard ? overflowCard.offsetHeight : 0;
+  const syncSidebarCompact = () => {
+    if (!sidebarSticky || !overflowCard) return;
+    if (!sidebarSticky.classList.contains("is-compact") && overflowCard.offsetHeight > 0) {
+      expandedCardHeight = overflowCard.offsetHeight;
+    }
+    const visibleOthers = Array.from(sidebarSticky.children).filter(
+      (el) => el !== overflowCard && el.offsetHeight > 0
+    );
+    const othersHeight = visibleOthers.reduce((sum, el) => sum + el.offsetHeight, 0);
+    const totalCards = visibleOthers.length + 1;
+    const gaps = Math.max(0, totalCards - 1) * 16;
+    const fullHeight = othersHeight + expandedCardHeight + gaps;
+    const headerH = siteHeader ? siteHeader.offsetHeight : 60;
+    const availHeight = window.innerHeight - headerH - 36;
+
+    if (fullHeight <= availHeight) {
+      sidebarSticky.classList.remove("is-compact");
+      return;
+    }
+
+    const enterY = (authorCard ? authorCard.offsetHeight : 140) + 120;
+    const leaveY = Math.max(80, enterY - 80);
+    const isCompact = sidebarSticky.classList.contains("is-compact");
+    if (!isCompact && window.scrollY > enterY) {
+      sidebarSticky.classList.add("is-compact");
+    } else if (isCompact && window.scrollY < leaveY) {
+      sidebarSticky.classList.remove("is-compact");
+    }
+  };
+
+  if (sidebarSticky && overflowCard) {
+    let stickyRaf = false;
+    const requestStickySync = () => {
+      if (!stickyRaf) {
+        stickyRaf = true;
+        requestAnimationFrame(() => {
+          stickyRaf = false;
+          syncSidebarCompact();
+        });
+      }
+    };
+    window.addEventListener("scroll", requestStickySync, { passive: true });
+    window.addEventListener("resize", requestStickySync, { passive: true });
+    syncSidebarCompact();
+  }
 
   if (tocCollapseBtn && tocCard) {
     tocCollapseBtn.addEventListener("click", () => {
       const collapsed = tocCard.classList.toggle("is-collapsed");
       tocCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
       tocCollapseBtn.setAttribute("aria-label", collapsed ? "展开目录" : "收起目录");
+      syncSidebarCompact();
     });
   }
 

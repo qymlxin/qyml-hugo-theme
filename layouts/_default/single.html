@@ -129,28 +129,9 @@
       </div>
     </section>
 
-    {{ with $related }}
-    <section class="float-card article-related-card">
-      <div class="float-card-head">
-        <h2 class="side-title">相关阅读</h2>
-        <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
-      </div>
-      <ul class="article-related-list">
-        {{ range . }}
-          <li class="article-related-item">
-            <a class="article-related-link" href="{{ .RelPermalink }}">
-              <span class="article-related-title">{{ .Title }}</span>
-              <span class="article-related-meta">
-                {{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
-              </span>
-            </a>
-          </li>
-        {{ end }}
-      </ul>
-    </section>
-    {{ end }}
-
-    <div class="article-sidebar-sticky">
+    {{- $hasRelated := gt (len $related) 0 -}}
+    {{- $hasRecommended := gt (len $recommended) 0 -}}
+    <div class="article-sidebar-sticky" data-sidebar-sticky>
       {{ if $hasTOC }}
       <section class="article-toc" aria-label="文章目录" data-toc-card>
         <div class="toc-block">
@@ -172,8 +153,29 @@
       </section>
       {{ end }}
 
+      {{ with $related }}
+      <section class="float-card article-related-card">
+        <div class="float-card-head">
+          <h2 class="side-title">相关阅读</h2>
+          <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+        </div>
+        <ul class="article-related-list">
+          {{ range . }}
+            <li class="article-related-item">
+              <a class="article-related-link" href="{{ .RelPermalink }}">
+                <span class="article-related-title">{{ .Title }}</span>
+                <span class="article-related-meta">
+                  {{ with .Date }}{{ .Format "2006.01.02" }}{{ end }}{{ with .Params.categories }}{{ range first 1 . }} · {{ . }}{{ end }}{{ end }}
+                </span>
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+      {{ end }}
+
       {{ with $recommended }}
-      <section class="float-card article-recommended-card">
+      <section class="float-card article-recommended-card"{{ if and $hasTOC $hasRelated }} data-sidebar-overflow-card{{ end }}>
         <div class="float-card-head">
           <h2 class="side-title">推荐阅读</h2>
           <a class="side-more" href="{{ "posts/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
@@ -195,7 +197,7 @@
 
       {{ if not $hasTOC }}
         {{ with site.Taxonomies.tags }}
-        <section class="float-card">
+        <section class="float-card"{{ if and $hasRelated $hasRecommended }} data-sidebar-overflow-card{{ end }}>
           <div class="float-card-head">
             <h2 class="side-title">热门标签</h2>
             <a class="side-more" href="{{ "tags/" | relURL }}">全部 <span aria-hidden="true">→</span></a>

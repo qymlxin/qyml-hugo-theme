@@ -2109,6 +2109,29 @@ img {
   min-width: 0;
 }
 
+.article-sidebar-sticky [data-sidebar-overflow-card] {
+  max-height: 28rem;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.24s var(--ease-out),
+    opacity 0.18s ease,
+    padding 0.24s var(--ease-out),
+    margin 0.24s var(--ease-out),
+    border-color 0.2s ease;
+}
+
+.article-sidebar-sticky.is-compact [data-sidebar-overflow-card] {
+  max-height: 0;
+  opacity: 0;
+  margin-top: -1rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
 .article-author-card {
   padding: 1.1rem 1.2rem;
 }
