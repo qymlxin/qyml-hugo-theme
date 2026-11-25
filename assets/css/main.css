@@ -2757,8 +2757,8 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.45rem;
-  height: 2.45rem;
+  width: 2.65rem;
+  height: 2.65rem;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
@@ -2785,9 +2785,7 @@ img {
 
 .fab-top--progress {
   position: relative;
-  width: 2.85rem;
-  height: 2.85rem;
-  border-color: transparent;
+  border: 0;
 }
 
 .fab-top--progress:hover {
@@ -2831,13 +2829,15 @@ img {
 }
 
 .fab-top-arrow {
+  width: 11px;
+  height: 11px;
   color: var(--muted);
   transition: color 0.15s ease, transform 0.15s ease;
 }
 
 .fab-top-pct {
   color: var(--text-secondary);
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
