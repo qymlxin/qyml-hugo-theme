@@ -620,54 +620,117 @@
   const tocBody = document.querySelector("[data-toc-body]");
   const tocLinks = document.querySelectorAll(".toc-nav a");
   const sidebarSticky = document.querySelector("[data-sidebar-sticky]");
+  const sidebarEl = sidebarSticky?.closest(".article-sidebar");
   const overflowCard = sidebarSticky?.querySelector("[data-sidebar-overflow-card]");
-  const authorCard = document.querySelector(".article-author-card");
+  const footerEl = document.querySelector(".site-footer");
 
-  let expandedCardHeight = overflowCard ? overflowCard.offsetHeight : 0;
-  const syncSidebarCompact = () => {
-    if (!sidebarSticky || !overflowCard) return;
-    if (!sidebarSticky.classList.contains("is-compact") && overflowCard.offsetHeight > 0) {
-      expandedCardHeight = overflowCard.offsetHeight;
-    }
-    const visibleOthers = Array.from(sidebarSticky.children).filter(
-      (el) => el !== overflowCard && el.offsetHeight > 0
-    );
-    const othersHeight = visibleOthers.reduce((sum, el) => sum + el.offsetHeight, 0);
-    const totalCards = visibleOthers.length + 1;
-    const gaps = Math.max(0, totalCards - 1) * 16;
-    const fullHeight = othersHeight + expandedCardHeight + gaps;
+  let isTall = false;
+  let isPinned = false;
+  let pinY = 0;
+  let unpinY = 0;
+
+  const clearFixedStyles = () => {
+    if (!sidebarSticky) return;
+    sidebarSticky.classList.remove("is-fixed-pinned");
+    sidebarSticky.style.removeProperty("top");
+    sidebarSticky.style.removeProperty("left");
+    sidebarSticky.style.removeProperty("width");
+  };
+
+  const syncSidebarPin = () => {
+    if (!sidebarSticky || !sidebarEl || !isTall) return;
     const headerH = siteHeader ? siteHeader.offsetHeight : 60;
-    const availHeight = window.innerHeight - headerH - 36;
 
-    if (fullHeight <= availHeight) {
-      sidebarSticky.classList.remove("is-compact");
-      return;
+    if (!isPinned && window.scrollY >= pinY) {
+      isPinned = true;
+      const sbRect = sidebarEl.getBoundingClientRect();
+      sidebarSticky.style.left = `${sbRect.left}px`;
+      sidebarSticky.style.width = `${sbRect.width}px`;
+      sidebarSticky.classList.add("is-fixed-pinned");
+    } else if (isPinned && window.scrollY < unpinY) {
+      isPinned = false;
+      clearFixedStyles();
     }
 
-    const enterY = Math.max(40, (authorCard ? authorCard.offsetHeight : 140) + 16);
-    const leaveY = Math.max(12, enterY - 40);
-    const isCompact = sidebarSticky.classList.contains("is-compact");
-    if (!isCompact && window.scrollY > enterY) {
-      sidebarSticky.classList.add("is-compact");
-    } else if (isCompact && window.scrollY < leaveY) {
-      sidebarSticky.classList.remove("is-compact");
+    if (isPinned) {
+      let topPx = headerH + 20;
+      if (footerEl) {
+        const footerTop = footerEl.getBoundingClientRect().top;
+        const pinnedH = sidebarSticky.offsetHeight;
+        topPx = Math.min(topPx, footerTop - pinnedH - 24);
+      }
+      sidebarSticky.style.top = `${topPx}px`;
     }
   };
 
-  if (sidebarSticky && overflowCard) {
-    let stickyRaf = false;
-    const requestStickySync = () => {
-      if (!stickyRaf) {
-        stickyRaf = true;
-        requestAnimationFrame(() => {
-          stickyRaf = false;
-          syncSidebarCompact();
-        });
-      }
-    };
-    window.addEventListener("scroll", requestStickySync, { passive: true });
-    window.addEventListener("resize", requestStickySync, { passive: true });
-    syncSidebarCompact();
+  const measureSidebar = () => {
+    if (!sidebarSticky || !sidebarEl || !overflowCard) return;
+    isPinned = false;
+    clearFixedStyles();
+    sidebarSticky.classList.remove("is-tall");
+
+    if (window.innerWidth <= 960) {
+      isTall = false;
+      return;
+    }
+
+    const headerH = siteHeader ? siteHeader.offsetHeight : 60;
+    const availHeight = window.innerHeight - headerH - 36;
+    const naturalHeight = sidebarSticky.scrollHeight;
+
+    if (naturalHeight <= availHeight) {
+      isTall = false;
+      return;
+    }
+
+    const rect = sidebarSticky.getBoundingClientRect();
+    const naturalDocTop = rect.top + window.scrollY;
+    isTall = true;
+    sidebarSticky.classList.add("is-tall");
+    pinY = naturalDocTop + naturalHeight - headerH - 20;
+    unpinY = Math.max(0, pinY - 60);
+  };
+
+  if (sidebarSticky && sidebarEl && overflowCard) {
+    let scrollRaf = false;
+    let resizeRaf = false;
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!scrollRaf) {
+          scrollRaf = true;
+          requestAnimationFrame(() => {
+            scrollRaf = false;
+            syncSidebarPin();
+          });
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      "resize",
+      () => {
+        if (!resizeRaf) {
+          resizeRaf = true;
+          requestAnimationFrame(() => {
+            resizeRaf = false;
+            measureSidebar();
+            syncSidebarPin();
+          });
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener("load", () => {
+      measureSidebar();
+      syncSidebarPin();
+    });
+
+    measureSidebar();
+    syncSidebarPin();
   }
 
   if (tocCollapseBtn && tocCard) {
@@ -675,7 +738,8 @@
       const collapsed = tocCard.classList.toggle("is-collapsed");
       tocCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
       tocCollapseBtn.setAttribute("aria-label", collapsed ? "展开目录" : "收起目录");
-      syncSidebarCompact();
+      measureSidebar();
+      syncSidebarPin();
     });
   }
 

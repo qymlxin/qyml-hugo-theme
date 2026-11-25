@@ -2100,6 +2100,17 @@ img {
   align-self: stretch;
 }
 
+@keyframes sidebarPinIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .article-sidebar-sticky {
   position: sticky;
   top: calc(var(--header-height) + 1.25rem);
@@ -2109,32 +2120,24 @@ img {
   min-width: 0;
 }
 
-.article-sidebar-sticky.is-compact,
-.article-sidebar-sticky:not(:has([data-sidebar-overflow-card])) {
+.article-sidebar-sticky:not(.is-tall) {
+  max-height: calc(var(--content-vh, 100vh) - var(--header-height) - 2.25rem);
   max-height: calc(100vh - var(--header-height) - 2.25rem);
 }
 
-.article-sidebar-sticky [data-sidebar-overflow-card] {
-  max-height: 28rem;
-  opacity: 1;
-  overflow: hidden;
-  transition:
-    max-height 0.24s var(--ease-out),
-    opacity 0.18s ease,
-    padding 0.24s var(--ease-out),
-    margin 0.24s var(--ease-out),
-    border-color 0.2s ease;
+.article-sidebar-sticky.is-tall {
+  position: static;
 }
 
-.article-sidebar-sticky.is-compact [data-sidebar-overflow-card] {
-  max-height: 0;
-  opacity: 0;
-  margin-top: -0.85rem;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-color: transparent;
-  box-shadow: none;
-  pointer-events: none;
+.article-sidebar-sticky.is-tall.is-fixed-pinned {
+  position: fixed;
+  z-index: 40;
+  max-height: calc(100vh - var(--header-height) - 2.25rem);
+  animation: sidebarPinIn 0.2s var(--ease-out);
+}
+
+.article-sidebar-sticky.is-tall.is-fixed-pinned [data-sidebar-overflow-card] {
+  display: none;
 }
 
 .article-author-card {
