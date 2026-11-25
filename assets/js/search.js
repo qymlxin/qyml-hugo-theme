@@ -442,6 +442,26 @@
     });
   }
 
+  // ── 标签页实时筛选 ──
+  const tagFilterInput = document.querySelector("[data-tag-filter]");
+  const tagCloud = document.querySelector("[data-tag-cloud]");
+  const tagEmpty = document.querySelector("[data-tag-empty]");
+
+  if (tagFilterInput && tagCloud) {
+    const tagChips = Array.from(tagCloud.querySelectorAll(".tag-chip"));
+    tagFilterInput.addEventListener("input", () => {
+      const q = tagFilterInput.value.trim().toLowerCase();
+      let visible = 0;
+      tagChips.forEach((chip) => {
+        const name = chip.dataset.tagName || "";
+        const match = !q || name.includes(q);
+        chip.hidden = !match;
+        if (match) visible++;
+      });
+      if (tagEmpty) tagEmpty.hidden = visible > 0;
+    });
+  }
+
   // ── Lightbox：图片 & Mermaid 放大预览 ──
   const lightbox = document.getElementById("lightbox");
   const lightboxBody = document.getElementById("lightbox-body");

@@ -1,0 +1,37 @@
+{{ define "main" }}
+<section class="categories-page">
+  <header class="taxonomy-hero">
+    <h1 class="page-title">分类</h1>
+    <p class="page-description">共 {{ len .Data.Terms }} 个分类 · {{ len site.RegularPages }} 篇文章</p>
+  </header>
+
+  <div class="cat-shelf-grid">
+    {{ range .Data.Terms.ByCount }}
+      <section class="cat-shelf-card" aria-labelledby="cat-{{ .Page.Title | urlize }}">
+        <header class="cat-shelf-head">
+          <div class="cat-shelf-title-wrap">
+            <h2 class="cat-shelf-title" id="cat-{{ .Page.Title | urlize }}">
+              <a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+            </h2>
+            <span class="cat-shelf-count">{{ .Count }} 篇</span>
+          </div>
+          <a class="cat-shelf-more" href="{{ .Page.RelPermalink }}">查看全部 <span aria-hidden="true">→</span></a>
+        </header>
+
+        <ul class="cat-shelf-posts">
+          {{ range first 3 .Pages.ByDate.Reverse }}
+            <li class="cat-shelf-post">
+              <a class="cat-shelf-post-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+              {{ with .Date }}
+                <time class="cat-shelf-post-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006.01.02" }}</time>
+              {{ end }}
+            </li>
+          {{ end }}
+        </ul>
+      </section>
+    {{ else }}
+      <p class="post-empty">暂无分类。</p>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
