@@ -856,13 +856,19 @@ img {
 }
 
 .post-cat-link {
+  display: inline-block;
+  padding: 0.06rem 0.38rem;
+  margin: -0.06rem -0.38rem;
+  border-radius: var(--radius-sm);
   color: var(--accent);
   font-weight: 500;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .post-cat-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  text-decoration: none;
 }
 
 .post-item-title {
@@ -1242,16 +1248,24 @@ img {
   display: inline-flex;
   align-items: center;
   padding: 0.14rem 0.55rem;
+  margin: 0;
   border-radius: var(--radius-sm);
   background: var(--accent-soft);
   color: var(--accent);
   font-size: 0.76rem;
   font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.post-cat-link:hover {
+.post-cat.post-cat-link {
+  margin: 0;
+  padding: 0.14rem 0.55rem;
+}
+
+.post-cat.post-cat-link:hover {
   background: var(--accent);
   color: #ffffff;
+  text-decoration: none;
 }
 
 .post-header h1 {
