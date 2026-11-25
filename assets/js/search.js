@@ -240,9 +240,58 @@
 
   // ── Spotlight 全站搜索（⌘K / Ctrl+K） ──
   if (searchRoot && searchToggle && searchPanel && searchInput && searchResults) {
+    const searchClearBtn = searchRoot.querySelector("[data-search-clear]");
+    const searchStatusEl = searchRoot.querySelector("[data-search-status]");
     let fuse;
+    let pages = [];
+    let hotTags = [];
     let loaded = false;
+    let loading = false;
     let activeIndex = -1;
+
+    const createDocIcon = () => {
+      const iconWrap = document.createElement("span");
+      iconWrap.className = "search-result-icon";
+      iconWrap.setAttribute("aria-hidden", "true");
+      iconWrap.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>';
+      return iconWrap;
+    };
+
+    const appendHighlightedText = (parent, text, query) => {
+      if (!text) return;
+      const q = (query || "").trim();
+      if (!q) {
+        parent.textContent = text;
+        return;
+      }
+      const tokens = q.split(/\s+/).filter(Boolean);
+      if (!tokens.length) {
+        parent.textContent = text;
+        return;
+      }
+      const escaped = tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      const regex = new RegExp(`(${escaped.join("|")})`, "ig");
+      const parts = text.split(regex);
+      parts.forEach((part, idx) => {
+        if (!part) return;
+        if (idx % 2 === 1) {
+          const mark = document.createElement("mark");
+          mark.textContent = part;
+          parent.appendChild(mark);
+        } else {
+          parent.appendChild(document.createTextNode(part));
+        }
+      });
+    };
+
+    const setStatus = (text) => {
+      if (searchStatusEl) searchStatusEl.textContent = text;
+    };
+
+    const syncClearBtn = () => {
+      if (searchClearBtn) searchClearBtn.hidden = !searchInput.value;
+    };
 
     const setEmpty = (message) => {
       searchResults.innerHTML = "";
@@ -253,7 +302,7 @@
       searchResults.appendChild(empty);
     };
 
-    const setActiveResult = (index) => {
+    const setActiveResult = (index, scrollIntoView = true) => {
       const items = searchResults.querySelectorAll(".search-result");
       if (!items.length) {
         activeIndex = -1;
@@ -263,7 +312,182 @@
       items.forEach((item, i) => {
         item.classList.toggle("is-active", i === activeIndex);
       });
-      items[activeIndex].scrollIntoView({ block: "nearest" });
+      if (scrollIntoView) {
+        items[activeIndex].scrollIntoView({ block: "nearest" });
+      }
+    };
+
+    const buildSectionHead = (label, hint = "") => {
+      const head = document.createElement("div");
+      head.className = "search-section-head";
+      const title = document.createElement("span");
+      title.textContent = label;
+      head.appendChild(title);
+      if (hint) {
+        const hintEl = document.createElement("span");
+        hintEl.className = "search-section-hint";
+        hintEl.textContent = hint;
+        head.appendChild(hintEl);
+      }
+      return head;
+    };
+
+    const buildQuickTags = (limit = 8) => {
+      if (!hotTags.length) return null;
+      const box = document.createElement("div");
+      box.className = "search-quick-tags";
+      hotTags.slice(0, limit).forEach(([tag, count]) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "search-quick-tag";
+        btn.textContent = `#${tag}`;
+        const countEl = document.createElement("span");
+        countEl.textContent = count;
+        btn.appendChild(countEl);
+        btn.addEventListener("click", () => {
+          searchInput.value = tag;
+          syncClearBtn();
+          if (fuse) renderResults(fuse.search(tag), tag);
+          searchInput.focus();
+        });
+        box.appendChild(btn);
+      });
+      return box;
+    };
+
+    const buildResultItem = (item, index, query = "") => {
+      const link = document.createElement("a");
+      link.className = "search-result";
+      if (index === 0) link.classList.add("is-active");
+      link.href = item.permalink;
+
+      const main = document.createElement("div");
+      main.className = "search-result-main";
+
+      const top = document.createElement("div");
+      top.className = "search-result-top";
+
+      const title = document.createElement("span");
+      title.className = "search-result-title";
+      appendHighlightedText(title, item.title, query);
+      top.appendChild(title);
+
+      const category = Array.isArray(item.categories) && item.categories[0];
+      if (category) {
+        const badge = document.createElement("span");
+        badge.className = "search-result-badge";
+        badge.textContent = category;
+        top.appendChild(badge);
+      }
+
+      const summaryText = item.summary || "";
+      main.appendChild(top);
+      if (summaryText) {
+        const summary = document.createElement("p");
+        summary.className = "search-result-summary";
+        appendHighlightedText(summary, summaryText, query);
+        main.appendChild(summary);
+      }
+
+      const metaParts = [];
+      if (item.date) metaParts.push(item.date);
+      if (Array.isArray(item.tags) && item.tags.length) {
+        metaParts.push(
+          item.tags
+            .slice(0, 3)
+            .map((t) => `#${t}`)
+            .join("  ")
+        );
+      }
+      if (metaParts.length) {
+        const meta = document.createElement("div");
+        meta.className = "search-result-meta";
+        meta.textContent = metaParts.join("  ·  ");
+        main.appendChild(meta);
+      }
+
+      const enterHint = document.createElement("span");
+      enterHint.className = "search-result-enter";
+      enterHint.setAttribute("aria-hidden", "true");
+      enterHint.textContent = "↵";
+
+      link.append(createDocIcon(), main, enterHint);
+      link.addEventListener("mouseenter", () => {
+        const items = Array.from(searchResults.querySelectorAll(".search-result"));
+        const idx = items.indexOf(link);
+        if (idx >= 0) setActiveResult(idx, false);
+      });
+      return link;
+    };
+
+    const renderDefaultState = () => {
+      searchResults.innerHTML = "";
+      activeIndex = -1;
+      if (!pages.length) {
+        setEmpty("暂无可检索的文章。");
+        setStatus("0 篇文章");
+        return;
+      }
+
+      if (hotTags.length) {
+        searchResults.appendChild(buildSectionHead("热门标签", "点击快速检索"));
+        const tagsRow = buildQuickTags(8);
+        if (tagsRow) searchResults.appendChild(tagsRow);
+      }
+
+      const recent = [...pages]
+        .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+        .slice(0, 5);
+      if (recent.length) {
+        searchResults.appendChild(buildSectionHead("最近文章"));
+        recent.forEach((item, idx) => {
+          searchResults.appendChild(buildResultItem(item, idx));
+        });
+        activeIndex = 0;
+      }
+      setStatus(`共 ${pages.length} 篇文章`);
+    };
+
+    const renderNoResults = (query) => {
+      searchResults.innerHTML = "";
+      activeIndex = -1;
+      const box = document.createElement("div");
+      box.className = "search-empty-box";
+      box.innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
+
+      const title = document.createElement("p");
+      title.className = "search-empty-title";
+      title.textContent = `未找到与「${query}」相关的文章`;
+
+      const sub = document.createElement("p");
+      sub.className = "search-empty-sub";
+      sub.textContent = "可以换个关键词，或试试下面的热门标签";
+
+      box.append(title, sub);
+      const tagsRow = buildQuickTags(6);
+      if (tagsRow) box.appendChild(tagsRow);
+      searchResults.appendChild(box);
+      setStatus("0 条结果");
+    };
+
+    const renderResults = (items, query) => {
+      searchResults.innerHTML = "";
+      activeIndex = -1;
+      if (!items.length) {
+        renderNoResults(query);
+        return;
+      }
+
+      const list = items.slice(0, 8);
+      searchResults.appendChild(
+        buildSectionHead(`搜索结果`, `匹配 ${items.length} 篇`)
+      );
+      list.forEach(({ item }, index) => {
+        searchResults.appendChild(buildResultItem(item, index, query));
+      });
+      activeIndex = 0;
+      setStatus(`匹配 ${items.length} / ${pages.length} 篇`);
     };
 
     const openPanel = async () => {
@@ -274,13 +498,30 @@
       }
       searchToggle.setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
+      syncClearBtn();
       requestAnimationFrame(() => searchInput.focus());
 
-      if (loaded) return;
-      loaded = true;
+      if (loaded || loading) {
+        if (loaded) {
+          const q = searchInput.value.trim();
+          if (q) renderResults(fuse.search(q), q);
+          else renderDefaultState();
+        }
+        return;
+      }
+      loading = true;
+      setEmpty("正在加载文章索引...");
       try {
         const response = await fetch(searchRoot.dataset.searchIndex || "/index.json");
-        const pages = await response.json();
+        pages = await response.json();
+        const tagCounts = new Map();
+        pages.forEach((p) => {
+          (p.tags || []).forEach((t) => {
+            tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+          });
+        });
+        hotTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
+
         fuse = new Fuse(pages, {
           keys: [
             { name: "title", weight: 2.2 },
@@ -292,13 +533,18 @@
           threshold: 0.32,
           ignoreLocation: true,
         });
-        if (searchInput.value.trim()) {
-          renderResults(fuse.search(searchInput.value.trim()));
+        loaded = true;
+        const q = searchInput.value.trim();
+        if (q) {
+          renderResults(fuse.search(q), q);
         } else {
-          setEmpty("输入关键词，即时检索所有文章与笔记。");
+          renderDefaultState();
         }
       } catch {
         setEmpty("搜索索引加载失败，请稍后重试。");
+        setStatus("加载失败");
+      } finally {
+        loading = false;
       }
     };
 
@@ -313,46 +559,6 @@
       document.body.style.overflow = "";
     };
 
-    const renderResults = (items) => {
-      searchResults.innerHTML = "";
-      activeIndex = -1;
-      if (!items.length) {
-        setEmpty("没有找到相关内容，换个关键词试试。");
-        return;
-      }
-
-      items.slice(0, 8).forEach(({ item }, index) => {
-        const link = document.createElement("a");
-        link.className = "search-result";
-        if (index === 0) link.classList.add("is-active");
-        link.href = item.permalink;
-
-        const top = document.createElement("div");
-        top.className = "search-result-top";
-
-        const title = document.createElement("span");
-        title.className = "search-result-title";
-        title.textContent = item.title;
-        top.appendChild(title);
-
-        const category = Array.isArray(item.categories) && item.categories[0];
-        if (category) {
-          const badge = document.createElement("span");
-          badge.className = "search-result-badge";
-          badge.textContent = category;
-          top.appendChild(badge);
-        }
-
-        const summary = document.createElement("p");
-        summary.className = "search-result-summary";
-        summary.textContent = item.summary || item.date || "";
-
-        link.append(top, summary);
-        searchResults.appendChild(link);
-      });
-      activeIndex = 0;
-    };
-
     searchToggle.addEventListener("click", () => {
       if (searchPanel.hidden) openPanel();
       else closePanel();
@@ -360,18 +566,25 @@
 
     searchBackdrop?.addEventListener("click", closePanel);
     searchCloseBtn?.addEventListener("click", closePanel);
+    searchClearBtn?.addEventListener("click", () => {
+      searchInput.value = "";
+      syncClearBtn();
+      if (loaded) renderDefaultState();
+      searchInput.focus();
+    });
 
     searchInput.addEventListener("input", () => {
+      syncClearBtn();
       const query = searchInput.value.trim();
       if (!query) {
-        setEmpty("输入关键词，即时检索所有文章与笔记。");
+        if (loaded) renderDefaultState();
         return;
       }
       if (!fuse) {
         setEmpty("搜索索引加载中...");
         return;
       }
-      renderResults(fuse.search(query));
+      renderResults(fuse.search(query), query);
     });
 
     searchInput.addEventListener("keydown", (event) => {
