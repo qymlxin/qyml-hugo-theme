@@ -644,8 +644,8 @@
       return;
     }
 
-    const enterY = (authorCard ? authorCard.offsetHeight : 140) + 120;
-    const leaveY = Math.max(80, enterY - 80);
+    const enterY = Math.max(40, (authorCard ? authorCard.offsetHeight : 140) + 16);
+    const leaveY = Math.max(12, enterY - 40);
     const isCompact = sidebarSticky.classList.contains("is-compact");
     if (!isCompact && window.scrollY > enterY) {
       sidebarSticky.classList.add("is-compact");
