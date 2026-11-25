@@ -510,30 +510,233 @@
     });
   }
 
-  // ── Lightbox：图片 & Mermaid 放大预览 ──
+  // ── Lightbox：图片、流程图与 Mermaid 交互缩放预览 ──
   const lightbox = document.getElementById("lightbox");
+  const lightboxStage = document.getElementById("lightbox-stage");
   const lightboxBody = document.getElementById("lightbox-body");
   const lightboxBg = document.getElementById("lightbox-bg");
   const lightboxCloseBtn = document.getElementById("lightbox-close");
+  const lightboxReadout = document.querySelector(".lightbox-zoom-readout");
+  const lightboxZoomInBtns = document.querySelectorAll("[data-lb-zoom-in]");
+  const lightboxZoomOutBtns = document.querySelectorAll("[data-lb-zoom-out]");
+  const lightboxResetBtns = document.querySelectorAll("[data-lb-reset]");
 
-  if (lightbox && lightboxBody) {
-    const openLightbox = (content) => {
-      lightboxBody.innerHTML = "";
-      lightboxBody.appendChild(content);
+  if (lightbox && lightboxStage && lightboxBody) {
+    const MIN_SCALE = 0.25;
+    const MAX_SCALE = 5;
+    let scale = 1;
+    let tx = 0;
+    let ty = 0;
+    let dragMoved = false;
+    let animTimer = 0;
+    const pointers = new Map();
+    let panOrigin = null;
+    let pinchOrigin = null;
+
+    const clampScale = (v) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, v));
+
+    const applyTransform = (animate = false) => {
+      if (animate) {
+        lightboxBody.classList.add("is-animating");
+        clearTimeout(animTimer);
+        animTimer = window.setTimeout(() => {
+          lightboxBody.classList.remove("is-animating");
+        }, 200);
+      } else {
+        lightboxBody.classList.remove("is-animating");
+      }
+      lightboxBody.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+      if (lightboxReadout) lightboxReadout.textContent = `${Math.round(scale * 100)}%`;
+      lightboxStage.classList.toggle("is-zoomed", scale > 1.01);
+    };
+
+    const resetTransform = (animate = true) => {
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      applyTransform(animate);
+    };
+
+    const zoomAt = (nextScale, clientX, clientY, animate = false) => {
+      const targetScale = clampScale(Number(nextScale.toFixed(3)));
+      if (targetScale === scale) return;
+      if (clientX !== undefined && clientY !== undefined) {
+        const rect = lightboxStage.getBoundingClientRect();
+        const dx = clientX - rect.left - rect.width / 2;
+        const dy = clientY - rect.top - rect.height / 2;
+        tx = dx - ((dx - tx) / scale) * targetScale;
+        ty = dy - ((dy - ty) / scale) * targetScale;
+      }
+      scale = targetScale;
+      if (Math.abs(scale - 1) < 0.02 && Math.abs(tx) < 12 && Math.abs(ty) < 12) {
+        tx = 0;
+        ty = 0;
+      }
+      applyTransform(animate);
+    };
+
+    const openLightbox = (content, frameClass = "") => {
+      lightboxBody.className = "lightbox-content" + (frameClass ? ` ${frameClass}` : "");
+      lightboxBody.replaceChildren(content);
+      pointers.clear();
+      panOrigin = null;
+      pinchOrigin = null;
+      dragMoved = false;
+      resetTransform(false);
       lightbox.hidden = false;
       document.body.style.overflow = "hidden";
     };
 
     const closeLightbox = () => {
+      if (lightbox.hidden) return;
       lightbox.hidden = true;
-      lightboxBody.innerHTML = "";
+      lightboxBody.replaceChildren();
+      lightboxBody.className = "lightbox-content";
+      pointers.clear();
+      panOrigin = null;
+      pinchOrigin = null;
+      lightboxStage.classList.remove("is-dragging", "is-zoomed");
       document.body.style.overflow = "";
     };
 
     lightboxBg?.addEventListener("click", closeLightbox);
     lightboxCloseBtn?.addEventListener("click", closeLightbox);
+
+    lightboxZoomInBtns.forEach((btn) =>
+      btn.addEventListener("click", () => zoomAt(scale * 1.25, undefined, undefined, true))
+    );
+    lightboxZoomOutBtns.forEach((btn) =>
+      btn.addEventListener("click", () => zoomAt(scale / 1.25, undefined, undefined, true))
+    );
+    lightboxResetBtns.forEach((btn) =>
+      btn.addEventListener("click", () => resetTransform(true))
+    );
+
+    lightboxStage.addEventListener(
+      "wheel",
+      (e) => {
+        if (lightbox.hidden) return;
+        e.preventDefault();
+        const step = e.deltaY < 0 ? 1.14 : 1 / 1.14;
+        zoomAt(scale * step, e.clientX, e.clientY, false);
+      },
+      { passive: false }
+    );
+
+    lightboxStage.addEventListener("dblclick", (e) => {
+      if (lightbox.hidden || e.target === lightboxStage) return;
+      if (scale > 1.05) {
+        resetTransform(true);
+      } else {
+        zoomAt(2, e.clientX, e.clientY, true);
+      }
+    });
+
+    lightboxStage.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 && e.pointerType === "mouse") return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      lightboxStage.setPointerCapture?.(e.pointerId);
+
+      if (pointers.size === 1) {
+        dragMoved = false;
+        if (scale > 1.01 || e.target !== lightboxStage) {
+          panOrigin = { x: e.clientX, y: e.clientY, tx, ty };
+          lightboxStage.classList.add("is-dragging");
+        }
+      } else if (pointers.size === 2) {
+        panOrigin = null;
+        const pts = Array.from(pointers.values());
+        const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1;
+        pinchOrigin = {
+          dist,
+          scale,
+          tx,
+          ty,
+          midX: (pts[0].x + pts[1].x) / 2,
+          midY: (pts[0].y + pts[1].y) / 2,
+        };
+      }
+    });
+
+    lightboxStage.addEventListener("pointermove", (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (pointers.size === 2 && pinchOrigin) {
+        dragMoved = true;
+        const pts = Array.from(pointers.values());
+        const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1;
+        const midX = (pts[0].x + pts[1].x) / 2;
+        const midY = (pts[0].y + pts[1].y) / 2;
+        const nextScale = clampScale(pinchOrigin.scale * (dist / pinchOrigin.dist));
+        const rect = lightboxStage.getBoundingClientRect();
+        const dx = pinchOrigin.midX - rect.left - rect.width / 2;
+        const dy = pinchOrigin.midY - rect.top - rect.height / 2;
+        tx =
+          dx -
+          ((dx - pinchOrigin.tx) / pinchOrigin.scale) * nextScale +
+          (midX - pinchOrigin.midX);
+        ty =
+          dy -
+          ((dy - pinchOrigin.ty) / pinchOrigin.scale) * nextScale +
+          (midY - pinchOrigin.midY);
+        scale = nextScale;
+        applyTransform(false);
+        return;
+      }
+
+      if (pointers.size === 1 && panOrigin) {
+        const moveX = e.clientX - panOrigin.x;
+        const moveY = e.clientY - panOrigin.y;
+        if (Math.hypot(moveX, moveY) > 4) {
+          dragMoved = true;
+        }
+        if (scale > 1.01) {
+          tx = panOrigin.tx + moveX;
+          ty = panOrigin.ty + moveY;
+          applyTransform(false);
+        }
+      }
+    });
+
+    const releasePointer = (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.delete(e.pointerId);
+      lightboxStage.releasePointerCapture?.(e.pointerId);
+      if (pointers.size < 2) pinchOrigin = null;
+      if (pointers.size === 0) {
+        panOrigin = null;
+        lightboxStage.classList.remove("is-dragging");
+      }
+    };
+
+    lightboxStage.addEventListener("pointerup", releasePointer);
+    lightboxStage.addEventListener("pointercancel", releasePointer);
+
+    lightboxStage.addEventListener("click", (e) => {
+      if (dragMoved) {
+        dragMoved = false;
+        return;
+      }
+      if (e.target === lightboxStage) {
+        closeLightbox();
+      }
+    });
+
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !lightbox.hidden) closeLightbox();
+      if (lightbox.hidden) return;
+      if (e.key === "Escape") {
+        closeLightbox();
+      } else if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        zoomAt(scale * 1.25, undefined, undefined, true);
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        zoomAt(scale / 1.25, undefined, undefined, true);
+      } else if (e.key === "0") {
+        e.preventDefault();
+        resetTransform(true);
+      }
     });
 
     document.querySelectorAll(".post-content img").forEach((img) => {
@@ -543,30 +746,29 @@
         const clone = document.createElement("img");
         clone.src = img.src;
         clone.alt = img.alt;
+        clone.draggable = false;
         if (img.classList.contains("diagram-image-auto-dark")) {
           clone.classList.add("diagram-image-auto-dark");
         }
-        openLightbox(clone);
+        const frameClass = img.closest(".diagram-excalidraw") ? "lightbox-diagram-frame" : "";
+        openLightbox(clone, frameClass);
       });
     });
 
-    document.querySelectorAll(".mermaid-wrap").forEach((wrap) => {
-      wrap.classList.add("zoomable");
-      wrap.addEventListener("click", () => {
-        const svg = wrap.querySelector("svg");
-        if (!svg) return;
-        const clone = svg.cloneNode(true);
-        if (!clone.getAttribute("viewBox")) {
-          const r = svg.getBoundingClientRect();
-          if (r.width && r.height) {
-            clone.setAttribute("viewBox", `0 0 ${r.width} ${r.height}`);
-          }
+    window.addEventListener("open-lightbox-mermaid", (e) => {
+      const svg = e.detail?.svg;
+      if (!svg) return;
+      const clone = svg.cloneNode(true);
+      if (!clone.getAttribute("viewBox")) {
+        const r = svg.getBoundingClientRect();
+        if (r.width && r.height) {
+          clone.setAttribute("viewBox", `0 0 ${r.width} ${r.height}`);
         }
-        clone.setAttribute("width", "100%");
-        clone.removeAttribute("height");
-        clone.style.cssText = "display:block;max-height:80vh;height:auto;";
-        openLightbox(clone);
-      });
+      }
+      clone.setAttribute("width", "100%");
+      clone.removeAttribute("height");
+      clone.style.cssText = "display:block;width:min(86vw,68rem);max-height:78vh;height:auto;";
+      openLightbox(clone, "lightbox-svg-frame");
     });
   }
 })();
