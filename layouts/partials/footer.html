@@ -4,8 +4,10 @@
   </div>
   <p class="footer-links">
     <a href="{{ "index.xml" | absURL }}">RSS</a>
-    <span>·</span>
-    <span>{{ site.Params.location | default "成都，中国" }}</span>
+    {{ with site.Params.location }}
+      <span>·</span>
+      <span>{{ . }}</span>
+    {{ end }}
   </p>
 </footer>
 

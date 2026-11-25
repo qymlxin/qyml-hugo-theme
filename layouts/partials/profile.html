@@ -1,11 +1,15 @@
+{{ $displayName := site.Params.author | default site.Title }}
+{{ $initial := substr $displayName 0 1 | upper }}
 <section class="float-card profile-card" aria-labelledby="profile-title">
   <div class="profile-top">
-    {{ with site.Params.avatar }}
-      <div class="profile-avatar">
-        <img src="{{ . | relURL }}" alt="{{ site.Params.author | default site.Title }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false">
-        <span class="profile-avatar-fallback" hidden aria-hidden="true">Q</span>
-      </div>
-    {{ end }}
+    <div class="profile-avatar">
+      {{ with site.Params.avatar }}
+        <img src="{{ . | relURL }}" alt="{{ $displayName }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.hidden=false">
+        <span class="profile-avatar-fallback" hidden aria-hidden="true">{{ $initial }}</span>
+      {{ else }}
+        <span class="profile-avatar-fallback" aria-hidden="true">{{ $initial }}</span>
+      {{ end }}
+    </div>
     <div class="profile-identity">
       {{ with site.Params.author }}
         <h2 class="profile-name" id="profile-title">{{ . }}</h2>

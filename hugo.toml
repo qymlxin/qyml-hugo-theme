@@ -19,12 +19,26 @@ hasCJKLanguage = true
   endLevel = 3
   ordered = false
 
-# ── 个人资料（在站点 hugo.toml 的 [params] 下覆盖） ──
+# ── 个人资料与首页展示（在站点 hugo.toml 的 [params] 下覆盖） ──
 [params]
-  # author   = 'Your Name'
-  # avatar   = '/images/avatar.jpg'   # 图片放 static/images/avatar.jpg
-  # location = 'Shanghai, China'
-  # subtitle = 'Stay hungry, stay foolish.'   # slogan
+  # author           = 'Your Name'
+  # description      = '个人技术博客，记录工程实践与技术思考。'
+  # subtitle         = 'Stay hungry, stay foolish.'
+  # avatar           = '/images/avatar.png'        # 不填则显示作者首字母头像
+  # location         = 'Chengdu, China'
+  # homeIntro        = '记录写代码时遇到的问题，也留下一些平时的想法。'
+  # homeCoverEyebrow = 'FIELD NOTES'
+  # homeCoverTitle   = '代码、系统与长期思考'
+  # homeBanner       = '/images/banner.jpg'        # 不填则使用主题内置渐变横幅
+  # homeBannerDark   = '/images/banner-dark.jpg'
+  # homeBannerAlt    = '首页横幅图片'
+
+# ── Artalk 评论（默认关闭，需要时在站点 hugo.toml 中开启） ──
+[params.artalk]
+  enabled = false
+  # server    = 'https://artalk.example.com'
+  # site      = 'my_blog'
+  # localSite = ''   # 本地 hugo server 调试时的站点名
 
 # ── 社交账号（填了才显示，没填不显示） ──
 [params.social]
@@ -33,13 +47,12 @@ hasCJKLanguage = true
   # instagram = ''   # Instagram 用户名（不含 @）
   # telegram  = ''   # Telegram 用户名（不含 @）
   # twitter   = ''   # X/Twitter 用户名（不含 @）
-  # weibo    = ''   # 微博用户名或完整 URL
-  # bilibili = ''   # B站 UID 或完整 space URL
-  # douyin   = ''   # 抖音主页完整 URL
-  # wechat   = ''   # 微信号（显示为文字标签，不可点击）
-  # qq       = ''   # QQ 号（显示为文字标签，不可点击）
-  # email    = ''   # 邮箱地址
-  # website  = ''   # 个人网站完整 URL
+  # weibo     = ''   # 微博用户名或完整 URL
+  # bilibili  = ''   # B站 UID 或完整 space URL
+  # douyin    = ''   # 抖音主页完整 URL
+  # wechat    = ''   # 微信号（点击复制）
+  # email     = ''   # 邮箱地址（点击复制）
+  # website   = ''   # 个人网站完整 URL
 
 [[menus.main]]
   identifier = 'home'

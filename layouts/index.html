@@ -1,13 +1,16 @@
 {{ define "main" }}
 {{ $posts := site.RegularPages.ByDate.Reverse }}
-{{ $banner := site.Params.homeBanner | default "/images/home-banner.svg" }}
+{{ $banner := site.Params.homeBanner }}
 {{ $bannerDark := site.Params.homeBannerDark | default $banner }}
 {{ $bannerAlt := site.Params.homeBannerAlt | default "博客首页横幅" }}
+{{ $eyebrow := site.Params.homeCoverEyebrow | default (printf "%s / FIELD NOTES" (upper (site.Params.author | default site.Title))) }}
 
 <section class="home-cover" aria-label="博客首页视觉">
-  <div class="home-cover-frame">
-    <img class="home-cover-image home-cover-image-light" src="{{ $banner | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
-    <img class="home-cover-image home-cover-image-dark" src="{{ $bannerDark | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
+  <div class="home-cover-frame{{ if not $banner }} home-cover-frame--fallback{{ end }}">
+    {{ with $banner }}
+      <img class="home-cover-image home-cover-image-light" src="{{ . | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
+      <img class="home-cover-image home-cover-image-dark" src="{{ $bannerDark | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
+    {{ end }}
     <div class="home-cover-shade" aria-hidden="true"></div>
     <div class="home-cover-caption">
       <div class="home-cover-left">
@@ -15,7 +18,7 @@
         <p>{{ site.Params.homeIntro | default "记录写代码时遇到的问题，也留下一些平时的想法。" }}</p>
       </div>
       <div class="home-cover-right">
-        <span>QYMLXIN / FIELD NOTES</span>
+        <span>{{ $eyebrow }}</span>
         <strong>{{ site.Params.homeCoverTitle | default "代码、系统与长期思考" }}</strong>
       </div>
     </div>
@@ -34,12 +37,14 @@
         <a class="archive-link" href="{{ "archive/" | relURL }}">所有归档 <span aria-hidden="true">→</span></a>
       </div>
 
+      {{ with site.Taxonomies.categories }}
       <nav class="category-nav" aria-label="文章分类">
         <a class="category-current" href="{{ site.Home.RelPermalink }}" aria-current="page">全部</a>
-        {{ range site.Taxonomies.categories.ByCount }}
+        {{ range .ByCount }}
           <a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span>{{ .Count }}</span></a>
         {{ end }}
       </nav>
+      {{ end }}
 
       {{ $paginator := .Paginate $posts }}
       <div class="post-list">
@@ -95,13 +100,14 @@
     </section>
     {{ end }}
 
+    {{ with $posts }}
     <section class="float-card">
       <div class="float-card-head">
         <h2 class="side-title">按月翻翻</h2>
         <a class="side-more" href="{{ "archive/" | relURL }}">归档 <span aria-hidden="true">→</span></a>
       </div>
       <ul class="side-terms side-archive">
-        {{ range first 6 ($posts.GroupByDate "2006年01月") }}
+        {{ range first 6 (.GroupByDate "2006年01月") }}
           <li>
             <a href="{{ "archive/" | relURL }}#y{{ (index .Pages 0).Date.Format "2006-01" }}">
               <span>{{ .Key }}</span><span class="side-count">{{ len .Pages }}</span>
@@ -110,6 +116,7 @@
         {{ end }}
       </ul>
     </section>
+    {{ end }}
   </aside>
 </div>
 {{ end }}

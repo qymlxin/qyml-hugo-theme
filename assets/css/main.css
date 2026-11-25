@@ -580,6 +580,13 @@ img {
   box-shadow: var(--shadow-card);
 }
 
+.home-cover-frame--fallback {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(56, 139, 253, 0.36), transparent 54%),
+    radial-gradient(circle at 82% 22%, rgba(244, 220, 152, 0.22), transparent 46%),
+    linear-gradient(135deg, #162235 0%, #1d2d44 48%, #28364a 100%);
+}
+
 .home-cover-image {
   display: block;
   width: 100%;
