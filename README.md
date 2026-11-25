@@ -1,18 +1,25 @@
 # qyml-hugo-theme
 
-简洁、克制的个人技术博客 Hugo 主题：浅灰底衬纯白卡片、三栏悬浮侧栏首页、左轨日期列表页、专栏书架式分类页、支持实时筛选的标签云，以及开箱即用的客户端搜索与代码高亮。
+**现代极简卡片风 / 专注技术阅读的卡片式排版（Clean Editorial Card UI）** Hugo 主题：冷灰画布衬托轻质卡片、克制的单科技蓝强调色，以及开箱即用的客户端搜索、交互式图表与代码块体验。
 
 ## 主要特性
 
-- **零构建前端依赖**：原生 CSS 变量 + 轻量化脚本，支持亮/暗模式自动跟随系统与手动切换。
-- **三栏首页与吸顶侧栏**：左侧个人资料与站点统计卡片，中间文章流，右侧热门话题与按月归档。
+- **双色现代极简卡片风**：亮色模式使用低饱和冷灰底（`#f2f3f5`）搭配纯白圆角卡片；暗夜模式使用深蓝灰夜色画布（`#151921`）搭配高对比度卡片层（`#212733`），支持随系统切换或手动切换并自动防闪烁。
+- **三栏首页与吸顶侧栏**：`82rem` 宽屏桌面栅格，左侧个人资料与站点统计卡片，中间文章流，右侧热门话题与按月归档。
+- **舒展文章阅读与组合右栏**：
+  - 宽敞的文章阅读卡 + 右侧组合侧栏（作者紧凑名片 + 吸顶 `h2`–`h4` 三级目录 + 相关/推荐阅读；无目录文章自动以热门标签卡补全）。
+  - 目录支持实时阅读进度百分比、折叠/展开、当前小节左蓝条指示以及目录容器自身平滑跟随滚动。
 - **差异化导航视图**：
   - `/posts/`：左列日期时间轨 + 右列文章主体 + 侧栏分类/标签快捷索引。
   - `/categories/`：专栏书架式两栏卡片，直接预览各分类最新 3 篇文章。
   - `/tags/`：分层标签云 + 本地即时关键词筛选。
   - `/archive/`：按年/月整理的时间线归档。
-- **技术写作友好**：集成 Shiki 代码高亮（`github-light` / `github-dark`）、Mermaid 流程图（随主题实时重绘）、KaTeX 公式（按需开启 `math = true`）、图片灯箱放大、阅读进度条与右栏粘性目录。
-- **客户端搜索**：基于 Fuse.js + `index.json`，支持 `⌘K` / `Ctrl+K` 快捷键与键盘上下选择。
+- **技术写作与交互预览**：
+  - 集成 Shiki 代码高亮（`github-light` / `github-dark`）、KaTeX 公式（按需开启 `math = true`）与顶部阅读进度条。
+  - **Mermaid 流程图**：支持 `[params.mermaid]` 亮/暗双主题实时重绘、工具栏行内缩放与拖拽平移、复制源码及全屏预览。
+  - **交互式 Lightbox**：点击正文图片、Excalidraw SVG 或 Mermaid「全屏」均可缩放（滚轮、双击、双指捏合、键盘 `+`/`-`/`0`/`Esc`）与拖拽平移。
+  - **零依赖 Excalidraw 短代码**：使用 `{{</* excalidraw src="diagrams/xxx.excalidraw.svg" alt="..." */>}}` 直接嵌入内嵌场景数据的 `.excalidraw.svg`，默认支持暗夜自动反色（可用 `invert="false"` 关闭，或传 `dark="..."` 指定独立暗色图）。
+- **客户端搜索与按需评论**：基于 Fuse.js + `index.json` 的全站即时搜索（支持 `⌘K` / `Ctrl+K`）；支持 Artalk 评论（主题默认关闭，可在站点配置按需开启）。
 - **零配置安全兜底**：不配置横幅图、头像或评论服务也能完整运行，不会出现裂图或报错。
 
 ## 安装方式
@@ -69,6 +76,10 @@ theme = 'qyml-hugo-theme' # 若使用 Hugo Module 则替换为 [module] 导入
   homeCoverEyebrow = 'FIELD NOTES'
   homeCoverTitle = '代码、系统与长期思考'
 
+[params.mermaid]
+  theme = 'neutral'
+  darkTheme = 'dark'
+
 [params.artalk]
   enabled = false # 默认关闭；如需开启请设为 true 并填写 server 与 site
   server = ''
@@ -93,15 +104,15 @@ layout = 'archive'
 +++
 ```
 
-2. 主题内置了 `archetypes/default.md` 模板，在站点根目录运行以下命令即可生成带预设 Front Matter 的新文章：
+2. 主题内置了 `archetypes/` 模板，在站点根目录运行以下命令即可生成带预设 Front Matter 的新文章：
 
 ```bash
-hugo new content posts/my-first-post.md
+hugo new content/posts/my-first-post.md
 ```
 
 ## 本地预览 `exampleSite`
 
-在主题目录的父级或主题内部可直接用 `exampleSite` 预览效果：
+在主题目录的父级或站点根目录可直接用 `exampleSite` 预览效果：
 
 ```bash
 hugo server --source themes/qyml-hugo-theme/exampleSite --themesDir ../..
