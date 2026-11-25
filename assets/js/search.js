@@ -495,6 +495,9 @@
         const clone = document.createElement("img");
         clone.src = img.src;
         clone.alt = img.alt;
+        if (img.classList.contains("diagram-image-auto-dark")) {
+          clone.classList.add("diagram-image-auto-dark");
+        }
         openLightbox(clone);
       });
     });

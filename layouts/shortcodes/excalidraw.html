@@ -2,12 +2,13 @@
 {{- $dark := .Get "dark" -}}
 {{- $alt := .Get "alt" | default "流程图" -}}
 {{- $caption := .Get "caption" -}}
+{{- $invert := ne (.Get "invert") "false" -}}
 {{- if not $src -}}
   {{- errorf "excalidraw shortcode requires a src argument" -}}
 {{- end -}}
 <figure class="diagram-figure diagram-excalidraw">
   <div class="diagram-images">
-    <img class="diagram-image{{ with $dark }} diagram-image-light{{ end }}" src="{{ $src | relURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+    <img class="diagram-image{{ if $dark }} diagram-image-light{{ else if $invert }} diagram-image-auto-dark{{ end }}" src="{{ $src | relURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
     {{- with $dark }}
       <img class="diagram-image diagram-image-dark" src="{{ . | relURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
     {{- end }}

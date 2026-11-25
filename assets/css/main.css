@@ -1579,12 +1579,19 @@ img {
   display: block;
 }
 
+[data-theme="dark"] .diagram-image-auto-dark {
+  filter: invert(0.92) hue-rotate(180deg);
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .diagram-image-light {
     display: none;
   }
   :root:not([data-theme="light"]) .diagram-image-dark {
     display: block;
+  }
+  :root:not([data-theme="light"]) .diagram-image-auto-dark {
+    filter: invert(0.92) hue-rotate(180deg);
   }
 }
 
