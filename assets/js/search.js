@@ -74,8 +74,11 @@
   // ── Header 滚动状态 & 阅读进度条 ──
   const siteHeader = document.querySelector(".site-header");
   const progressBar = document.querySelector("[data-reading-progress]");
-  const tocProgressEl = document.querySelector("[data-toc-progress]");
+  const tocProgressEls = document.querySelectorAll("[data-toc-progress]");
+  const fabProgressEl = document.querySelector("[data-fab-progress]");
+  const fabRingEl = document.querySelector("[data-fab-ring]");
   const postArticle = document.querySelector(".post");
+  const FAB_RING_CIRCUMFERENCE = 2 * Math.PI * 21;
   const varHeaderOffset = () => (siteHeader ? siteHeader.offsetHeight + 16 : 68);
 
   let rafPending = false;
@@ -84,16 +87,27 @@
     if (siteHeader) {
       siteHeader.classList.toggle("is-scrolled", window.scrollY > 8);
     }
-    if ((progressBar || tocProgressEl) && postArticle) {
+    if ((progressBar || tocProgressEls.length || fabProgressEl || fabRingEl) && postArticle) {
       let pct = 0;
-      if (window.scrollY > 4) {
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (nearBottom) {
+        pct = 100;
+      } else if (window.scrollY > 4) {
         const rect = postArticle.getBoundingClientRect();
         const total = Math.max(1, postArticle.offsetHeight - window.innerHeight * 0.7);
         const read = Math.max(0, -rect.top + varHeaderOffset());
         pct = Math.min(100, (read / total) * 100);
       }
+      const roundedPct = `${Math.round(pct)}%`;
       if (progressBar) progressBar.style.width = `${pct.toFixed(2)}%`;
-      if (tocProgressEl) tocProgressEl.textContent = `${Math.round(pct)}%`;
+      tocProgressEls.forEach((el) => {
+        el.textContent = roundedPct;
+      });
+      if (fabProgressEl) fabProgressEl.textContent = roundedPct;
+      if (fabRingEl) {
+        fabRingEl.style.strokeDashoffset = (FAB_RING_CIRCUMFERENCE * (1 - pct / 100)).toFixed(2);
+      }
     }
   };
 
@@ -112,8 +126,9 @@
   // ── 回到顶部按钮 ──
   const scrollTopBtn = document.querySelector("[data-scroll-top]");
   if (scrollTopBtn) {
+    const showThreshold = postArticle ? 80 : 360;
     const toggleScrollBtn = () => {
-      scrollTopBtn.hidden = window.scrollY < 360;
+      scrollTopBtn.hidden = window.scrollY < showThreshold;
     };
     toggleScrollBtn();
     window.addEventListener("scroll", toggleScrollBtn, { passive: true });

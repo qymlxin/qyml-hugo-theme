@@ -1809,6 +1809,7 @@ img {
   flex-direction: column;
   gap: 1rem;
   min-width: 0;
+  align-self: stretch;
 }
 
 .article-sidebar-sticky {
@@ -2748,7 +2749,8 @@ img {
   z-index: 90;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .fab {
@@ -2779,6 +2781,76 @@ img {
 
 .fab-toc {
   display: none;
+}
+
+.fab-top--progress {
+  position: relative;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-color: transparent;
+}
+
+.fab-top--progress:hover {
+  border-color: transparent;
+}
+
+.fab-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.fab-ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2.4;
+}
+
+.fab-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.fab-top-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.04rem;
+  line-height: 1;
+}
+
+.fab-top-arrow {
+  color: var(--muted);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.fab-top-pct {
+  color: var(--text-secondary);
+  font-size: 0.62rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transition: color 0.15s ease;
+}
+
+.fab-top--progress:hover .fab-top-arrow,
+.fab-top--progress:hover .fab-top-pct {
+  color: var(--accent);
+}
+
+.fab-top--progress:hover .fab-top-arrow {
+  transform: translateY(-1px);
 }
 
 /* ── Mobile Drawer, Lightbox & Toast ─────────────────────────────────────── */
@@ -3167,6 +3239,11 @@ img {
 @media (max-width: 640px) {
   body {
     padding: calc(var(--header-height) + 1rem) 0.9rem 0;
+  }
+
+  .floating-actions {
+    right: 0.9rem;
+    bottom: 1rem;
   }
 
   body.kind-page {

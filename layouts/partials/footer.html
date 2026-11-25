@@ -17,7 +17,20 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="14" y2="12"></line><line x1="4" y1="18" x2="17" y2="18"></line></svg>
   </button>
   {{ end }}
+  {{ if eq .Kind "page" }}
+  <button class="fab fab-top fab-top--progress" type="button" data-scroll-top aria-label="回到顶部" hidden>
+    <svg class="fab-ring" viewBox="0 0 46 46" aria-hidden="true">
+      <circle class="fab-ring-track" cx="23" cy="23" r="21"></circle>
+      <circle class="fab-ring-fill" data-fab-ring cx="23" cy="23" r="21"></circle>
+    </svg>
+    <span class="fab-top-inner">
+      <svg class="fab-top-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+      <span class="fab-top-pct" data-fab-progress>0%</span>
+    </span>
+  </button>
+  {{ else }}
   <button class="fab fab-top" type="button" data-scroll-top aria-label="回到顶部" hidden>
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
   </button>
+  {{ end }}
 </div>
