@@ -21,99 +21,176 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/artalk@2.10.0/dist/Artalk.css">
 <style>
-  #Comments {
-    --artalk-control-bg: var(--surface);
-    --artalk-control-bg-hover: var(--surface-hover);
-    --artalk-control-text: var(--text);
-    --artalk-control-muted: var(--muted);
-    --artalk-control-border: var(--border);
-    --artalk-control-accent: var(--accent);
-    --artalk-control-accent-hover: var(--accent-hover);
-    color: var(--artalk-control-text);
+  #Comments,
+  #Comments .artalk,
+  #Comments .artalk.atk-dark-mode,
+  .atk-layer-wrap,
+  .atk-layer-wrap.atk-dark-mode {
+    --at-color-bg: var(--surface);
+    --at-color-bg-transl: var(--surface);
+    --at-color-bg-grey: var(--surface-soft);
+    --at-color-bg-grey-transl: var(--surface-soft);
+    --at-color-bg-light: var(--accent-soft);
+    --at-color-font: var(--text);
+    --at-color-deep: var(--text);
+    --at-color-sub: var(--text-secondary);
+    --at-color-grey: var(--muted);
+    --at-color-meta: var(--muted);
+    --at-color-border: var(--border);
+    --at-color-light: var(--accent);
+    --at-color-main: var(--accent);
+    --at-color-gradient: linear-gradient(180deg, transparent, var(--surface));
+    color: var(--text);
     font-family: var(--font-sans);
   }
 
-  #Comments .atk-main-editor,
-  #Comments .atk-list-header,
-  #Comments .atk-list-footer,
-  #Comments .atk-footer {
-    border-color: var(--artalk-control-border);
-  }
-
   #Comments .atk-main-editor {
-    border-radius: var(--radius);
-    background: var(--artalk-control-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
     overflow: hidden;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
   }
 
-  #Comments .atk-input,
-  #Comments .atk-textarea-wrap,
-  #Comments .atk-editor-edit {
-    background: transparent;
-    border-color: var(--artalk-control-border);
-    border-radius: var(--radius-sm);
-    color: var(--artalk-control-text);
-    box-shadow: none;
-  }
-
-  #Comments .atk-input::placeholder,
-  #Comments .atk-editor-edit::placeholder {
-    color: var(--artalk-control-muted);
-    opacity: 0.82;
-  }
-
-  #Comments .atk-input:focus,
-  #Comments .atk-textarea-wrap:focus-within,
-  #Comments .atk-editor-edit:focus {
-    border-color: var(--artalk-control-accent);
+  #Comments .atk-main-editor:focus-within {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
 
-  #Comments .atk-btn,
-  #Comments .atk-plug-btn,
-  #Comments .atk-common-action-btn,
-  #Comments .atk-show-btn {
-    border: 1px solid var(--artalk-control-border);
-    border-radius: var(--radius-pill);
-    background: transparent;
-    color: var(--artalk-control-muted);
-    font-family: inherit;
-    transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  #Comments .atk-main-editor .atk-header {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0.72rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-soft);
   }
 
-  #Comments .atk-btn:hover,
+  #Comments .atk-main-editor .atk-header input {
+    width: 100%;
+    height: 2.15rem;
+    padding: 0 0.72rem;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    font-family: inherit;
+    font-size: 0.84rem;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #Comments .atk-main-editor .atk-header input::placeholder {
+    color: var(--muted);
+    opacity: 0.85;
+  }
+
+  #Comments .atk-main-editor .atk-header input:focus,
+  #Comments .atk-main-editor .atk-header input:focus-visible {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent-soft) !important;
+    outline: none !important;
+  }
+
+  #Comments .atk-textarea-wrap,
+  #Comments .atk-textarea {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+  }
+
+  #Comments .atk-textarea {
+    min-height: 7rem;
+    padding: 0.8rem 0.95rem !important;
+    font-family: inherit;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    outline: none !important;
+  }
+
+  #Comments .atk-textarea::placeholder {
+    color: var(--subtle);
+    opacity: 0.9;
+  }
+
+  #Comments .atk-main-editor .atk-bottom {
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--surface-soft);
+  }
+
+  #Comments .atk-plug-btn,
+  #Comments .atk-btn,
+  #Comments .atk-common-action-btn,
+  #Comments .atk-show-btn {
+    height: 1.95rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
   #Comments .atk-plug-btn:hover,
+  #Comments .atk-btn:hover,
   #Comments .atk-common-action-btn:hover,
-  #Comments .atk-show-btn:hover {
-    border-color: var(--artalk-control-accent);
-    background: var(--accent-soft);
-    color: var(--artalk-control-accent);
+  #Comments .atk-show-btn:hover,
+  #Comments .atk-plug-btn.active {
+    border-color: var(--border);
+    background: var(--surface-hover);
+    color: var(--accent);
   }
 
   #Comments .atk-send-btn {
-    min-height: 2.15rem;
-    padding: 0.4rem 1.15rem;
+    min-height: 2rem;
+    padding: 0 1.15rem;
     border: 0;
-    border-radius: var(--radius-pill);
-    background: var(--artalk-control-accent);
+    border-radius: var(--radius);
+    background: var(--accent);
     color: #ffffff;
     font-family: inherit;
+    font-size: 0.84rem;
     font-weight: 500;
     letter-spacing: 0.01em;
     box-shadow: none;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   #Comments .atk-send-btn:hover,
   #Comments .atk-send-btn:focus-visible {
-    background: var(--artalk-control-accent-hover);
+    background: var(--accent-hover);
     color: #ffffff;
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
 
   #Comments .atk-send-btn:disabled {
-    background: var(--artalk-control-bg-hover);
-    color: var(--artalk-control-muted);
+    background: var(--surface-hover);
+    color: var(--muted);
     opacity: 1;
+  }
+
+  #Comments .atk-plug-panel-wrap {
+    border-top: 1px solid var(--border);
+    background: var(--surface-elevated);
+  }
+
+  #Comments .atk-list-header {
+    padding-top: 0.65rem;
+    border-color: var(--border);
+    color: var(--text-secondary);
+  }
+
+  #Comments .atk-comment-wrap {
+    border-color: var(--border-subtle);
+  }
+
+  #Comments .atk-list-footer {
+    border-color: var(--border);
+    color: var(--muted);
   }
 
   #Comments .atk-footer,
@@ -121,12 +198,24 @@
     display: none;
   }
 
-  #Comments .atk-list-footer {
-    color: var(--artalk-control-muted);
+  #Comments a {
+    color: var(--accent);
   }
 
-  #Comments a {
-    color: var(--artalk-control-accent);
+  @media (max-width: 640px) {
+    #Comments .atk-main-editor .atk-header {
+      grid-template-columns: 1fr;
+      gap: 0.45rem;
+      padding: 0.65rem 0.72rem;
+    }
+
+    #Comments .atk-textarea {
+      padding: 0.72rem 0.78rem !important;
+    }
+
+    #Comments .atk-main-editor .atk-bottom {
+      padding: 0.5rem 0.72rem;
+    }
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/artalk@2.10.0/dist/Artalk.js"></script>
