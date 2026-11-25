@@ -1,0 +1,27 @@
+baseURL = 'https://example.com'
+locale = 'zh-cn'
+title = 'Tech Notes'
+theme = 'qyml-hugo-theme'
+enableRobotsTXT = true
+
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+
+[params]
+  author = 'Demo Author'
+  description = '一个简洁的个人技术博客示例站点。'
+  subtitle = 'Write clearly, build steadily.'
+  location = 'Chengdu, China'
+  homeIntro = '记录写代码时遇到的问题，也留下一些平时的想法。'
+  homeCoverEyebrow = 'FIELD NOTES'
+  homeCoverTitle = '代码、系统与长期思考'
+
+# 默认关闭评论，需要时将 enabled 设为 true 并填写自己的 Artalk 服务地址
+[params.artalk]
+  enabled = false
+  server = ''
+  site = ''
+
+[params.social]
+  github = 'qymlxin'
+  email = 'hello@example.com'
