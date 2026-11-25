@@ -16,8 +16,13 @@ hasCJKLanguage = true
 
 [markup.tableOfContents]
   startLevel = 2
-  endLevel = 3
+  endLevel = 4
   ordered = false
+
+# ── Mermaid 图表主题（默认自动跟随站点亮暗模式） ──
+[params.mermaid]
+  theme = 'neutral'
+  darkTheme = 'dark'
 
 # ── 个人资料与首页展示（在站点 hugo.toml 的 [params] 下覆盖） ──
 [params]

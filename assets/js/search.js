@@ -74,6 +74,7 @@
   // ── Header 滚动状态 & 阅读进度条 ──
   const siteHeader = document.querySelector(".site-header");
   const progressBar = document.querySelector("[data-reading-progress]");
+  const tocProgressEl = document.querySelector("[data-toc-progress]");
   const postArticle = document.querySelector(".post");
   const varHeaderOffset = () => (siteHeader ? siteHeader.offsetHeight + 16 : 68);
 
@@ -83,16 +84,16 @@
     if (siteHeader) {
       siteHeader.classList.toggle("is-scrolled", window.scrollY > 8);
     }
-    if (progressBar && postArticle) {
-      if (window.scrollY <= 4) {
-        progressBar.style.width = "0%";
-      } else {
+    if ((progressBar || tocProgressEl) && postArticle) {
+      let pct = 0;
+      if (window.scrollY > 4) {
         const rect = postArticle.getBoundingClientRect();
         const total = Math.max(1, postArticle.offsetHeight - window.innerHeight * 0.7);
         const read = Math.max(0, -rect.top + varHeaderOffset());
-        const pct = Math.min(100, (read / total) * 100);
-        progressBar.style.width = `${pct.toFixed(2)}%`;
+        pct = Math.min(100, (read / total) * 100);
       }
+      if (progressBar) progressBar.style.width = `${pct.toFixed(2)}%`;
+      if (tocProgressEl) tocProgressEl.textContent = `${Math.round(pct)}%`;
     }
   };
 
@@ -385,30 +386,77 @@
     });
   }
 
-  // ── TOC 滚动高亮 ──
+  // ── TOC 滚动高亮、容器自滚与折叠 ──
+  const tocCard = document.querySelector("[data-toc-card]");
+  const tocCollapseBtn = document.querySelector("[data-toc-collapse]");
+  const tocBody = document.querySelector("[data-toc-body]");
   const tocLinks = document.querySelectorAll(".toc-nav a");
-  if (tocLinks.length) {
-    const headings = Array.from(
-      document.querySelectorAll(".post-content h2, .post-content h3")
-    );
 
-    const onScroll = () => {
-      const threshold = 110;
+  if (tocCollapseBtn && tocCard) {
+    tocCollapseBtn.addEventListener("click", () => {
+      const collapsed = tocCard.classList.toggle("is-collapsed");
+      tocCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
+      tocCollapseBtn.setAttribute("aria-label", collapsed ? "展开目录" : "收起目录");
+    });
+  }
+
+  if (tocLinks.length) {
+    tocLinks.forEach((a) => {
+      const label = a.textContent.trim();
+      if (label && !a.title) a.title = label;
+    });
+
+    const headings = Array.from(
+      document.querySelectorAll(".post-content h2, .post-content h3, .post-content h4")
+    );
+    let lastActiveId = "";
+
+    const updateToc = () => {
+      const threshold = 112;
       let current = headings[0];
       for (const h of headings) {
         if (h.getBoundingClientRect().top <= threshold) {
           current = h;
         }
       }
+      const currentId = current ? current.id : "";
+      let activeDesktopLink = null;
       tocLinks.forEach((a) => {
         const href = a.getAttribute("href");
-        const isActive = Boolean(current && href === "#" + current.id);
+        const isActive = Boolean(currentId && href === "#" + currentId);
         a.classList.toggle("toc-active", isActive);
+        if (isActive && tocBody && tocBody.contains(a)) {
+          activeDesktopLink = a;
+        }
       });
+
+      if (activeDesktopLink && currentId !== lastActiveId) {
+        lastActiveId = currentId;
+        const bodyRect = tocBody.getBoundingClientRect();
+        const linkRect = activeDesktopLink.getBoundingClientRect();
+        const offsetTop = linkRect.top - bodyRect.top + tocBody.scrollTop;
+        const targetScroll = offsetTop - tocBody.clientHeight * 0.35;
+        if (linkRect.top < bodyRect.top + 24 || linkRect.bottom > bodyRect.bottom - 24) {
+          tocBody.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+        }
+      }
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    let tocRaf = false;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!tocRaf) {
+          tocRaf = true;
+          requestAnimationFrame(() => {
+            tocRaf = false;
+            updateToc();
+          });
+        }
+      },
+      { passive: true }
+    );
+    updateToc();
   }
 
   // ── 移动端侧滑抽屉 ──

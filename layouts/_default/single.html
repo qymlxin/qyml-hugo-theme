@@ -58,12 +58,22 @@
   </article>
 
   {{ if $hasTOC }}
-  <aside class="article-toc" aria-label="文章目录">
+  <aside class="article-toc" aria-label="文章目录" data-toc-card>
     <div class="toc-block">
-      <p class="toc-title">目录</p>
-      <nav class="toc-nav">
-        {{ .TableOfContents }}
-      </nav>
+      <div class="toc-head">
+        <span class="toc-title">目录</span>
+        <div class="toc-head-right">
+          <span class="toc-progress" data-toc-progress aria-label="阅读进度">0%</span>
+          <button class="toc-collapse-btn" type="button" data-toc-collapse aria-expanded="true" aria-label="收起目录" title="收起/展开目录">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+      <div class="toc-body" data-toc-body>
+        <nav class="toc-nav">
+          {{ .TableOfContents }}
+        </nav>
+      </div>
     </div>
   </aside>
   {{ end }}
