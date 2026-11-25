@@ -1,6 +1,8 @@
 # qyml-hugo-theme 主题默认配置
 # 站点的 hugo.toml 中的同名配置会覆盖这里的值
 
+hasCJKLanguage = true
+
 [outputs]
   home = ['HTML', 'RSS', 'JSON']
 
@@ -51,29 +53,20 @@
   url = '/posts/'
   weight = 20
 
-# 父菜单项，url 留空，子项会收在它下面
-[[menus.main]]
-  identifier = 'more'
-  name = '更多'
-  weight = 30
-
 [[menus.main]]
   identifier = 'categories'
   name = '分类'
   url = '/categories/'
-  weight = 31
-  parent = 'more'
+  weight = 30
 
 [[menus.main]]
   identifier = 'tags'
   name = '标签'
   url = '/tags/'
-  weight = 32
-  parent = 'more'
+  weight = 40
 
 [[menus.main]]
   identifier = 'archive'
   name = '归档'
   url = '/archive/'
-  weight = 33
-  parent = 'more'
+  weight = 50

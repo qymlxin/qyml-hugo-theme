@@ -1,36 +1,39 @@
 {{ define "main" }}
 {{ $posts := site.RegularPages.ByDate.Reverse }}
 {{ $banner := site.Params.homeBanner | default "/images/home-banner.svg" }}
-{{ $bannerDark := site.Params.homeBannerDark | default "/images/home-banner.dark.svg" }}
-{{ $bannerAlt := site.Params.homeBannerAlt | default "湖畔山城、远山和水面组成的首页横幅" }}
-<div class="home-hero-stack">
-  <header class="home-intro">
-    <h1>{{ site.Params.author | default site.Title }}<span>的博客</span></h1>
-    <p>{{ site.Params.homeIntro | default "记录写代码时遇到的问题，也留下一些平时的想法。" }}</p>
-  </header>
+{{ $bannerDark := site.Params.homeBannerDark | default $banner }}
+{{ $bannerAlt := site.Params.homeBannerAlt | default "博客首页横幅" }}
 
-  <section class="home-cover" aria-label="博客首页视觉">
-    <div class="home-cover-frame">
-      <img class="home-cover-image home-cover-image-light" src="{{ $banner | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
-      <img class="home-cover-image home-cover-image-dark" src="{{ $bannerDark | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
-      <div class="home-cover-shade" aria-hidden="true"></div>
-      <div class="home-cover-caption">
-        <div class="home-cover-right">
-          <span>QYMLXIN / FIELD NOTES</span>
-          <strong>{{ site.Params.homeCoverTitle | default "代码、系统与长期思考" }}</strong>
-        </div>
+<section class="home-cover" aria-label="博客首页视觉">
+  <div class="home-cover-frame">
+    <img class="home-cover-image home-cover-image-light" src="{{ $banner | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
+    <img class="home-cover-image home-cover-image-dark" src="{{ $bannerDark | relURL }}" alt="{{ $bannerAlt }}" fetchpriority="high">
+    <div class="home-cover-shade" aria-hidden="true"></div>
+    <div class="home-cover-caption">
+      <div class="home-cover-left">
+        <h1>{{ site.Params.author | default site.Title }}<span>的博客</span></h1>
+        <p>{{ site.Params.homeIntro | default "记录写代码时遇到的问题，也留下一些平时的想法。" }}</p>
+      </div>
+      <div class="home-cover-right">
+        <span>QYMLXIN / FIELD NOTES</span>
+        <strong>{{ site.Params.homeCoverTitle | default "代码、系统与长期思考" }}</strong>
       </div>
     </div>
-  </section>
-</div>
+  </div>
+</section>
 
-<div class="home-layout journal-layout">
+<div class="home-layout">
+  <aside class="home-side home-side-left" aria-label="关于博主">
+    {{ partial "profile.html" . }}
+  </aside>
+
   <div class="home-main">
     <section aria-labelledby="recent-posts-title">
       <div class="section-header">
         <h2 id="recent-posts-title">最近文章 <span class="article-count">{{ len $posts }}</span></h2>
         <a class="archive-link" href="{{ "archive/" | relURL }}">所有归档 <span aria-hidden="true">→</span></a>
       </div>
+
       <nav class="category-nav" aria-label="文章分类">
         <a class="category-current" href="{{ site.Home.RelPermalink }}" aria-current="page">全部</a>
         {{ range site.Taxonomies.categories.ByCount }}
@@ -39,7 +42,7 @@
       </nav>
 
       {{ $paginator := .Paginate $posts }}
-      <div class="post-list journal-posts">
+      <div class="post-list">
       {{ range $paginator.Pages }}
         <article class="post-item">
           <div class="entry-meta">
@@ -50,9 +53,16 @@
                 <a class="post-cat-link" href="{{ printf "categories/%s/" (. | urlize) | relURL }}">{{ . }}</a>
               {{ end }}
             {{ end }}
+            <span class="meta-dot" aria-hidden="true">·</span>
+            <span>{{ .ReadingTime }} 分钟阅读</span>
           </div>
-          <h3 class="post-item-title"><a class="post-item-link" href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+
+          <h3 class="post-item-title">
+            <a class="post-item-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h3>
+
           {{ partial "post-summary.html" . }}
+
           {{ with .Params.tags }}
             <div class="post-tags">
               {{ range first 4 . }}
@@ -65,25 +75,31 @@
         <p class="post-empty">暂无内容。</p>
       {{ end }}
       </div>
+
       {{ template "_internal/pagination.html" . }}
     </section>
   </div>
 
-  <aside class="sidebar sidebar-right journal-sidebar" aria-label="博主与文章索引">
-    {{ partial "profile.html" . }}
+  <aside class="home-side home-side-right" aria-label="话题与归档">
     {{ with site.Taxonomies.tags }}
-    <section class="side-block">
-      <h2 class="side-title">常写的话题</h2>
+    <section class="float-card">
+      <div class="float-card-head">
+        <h2 class="side-title">常写的话题</h2>
+        <a class="side-more" href="{{ "tags/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+      </div>
       <div class="side-tags">
         {{ range first 12 .ByCount }}
           <a class="side-tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span>{{ .Count }}</span></a>
         {{ end }}
       </div>
-      <a class="side-more" href="{{ "tags/" | relURL }}">全部标签 <span aria-hidden="true">→</span></a>
     </section>
     {{ end }}
-    <section class="side-block">
-      <h2 class="side-title">按月翻翻</h2>
+
+    <section class="float-card">
+      <div class="float-card-head">
+        <h2 class="side-title">按月翻翻</h2>
+        <a class="side-more" href="{{ "archive/" | relURL }}">归档 <span aria-hidden="true">→</span></a>
+      </div>
       <ul class="side-terms side-archive">
         {{ range first 6 ($posts.GroupByDate "2006年01月") }}
           <li>
@@ -94,10 +110,6 @@
         {{ end }}
       </ul>
     </section>
-    <a class="sidebar-rss" href="{{ "index.xml" | relURL }}">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="5" cy="19" r="1" fill="currentColor"/><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/></svg>
-      通过 RSS 订阅更新
-    </a>
   </aside>
 </div>
 {{ end }}

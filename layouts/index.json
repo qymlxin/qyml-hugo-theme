@@ -6,6 +6,8 @@
     "date" (.Date.Format "2006-01-02")
     "summary" (.Summary | plainify)
     "content" (.Plain | plainify)
+    "categories" (.Params.categories | default slice)
+    "tags" (.Params.tags | default slice)
   ) -}}
 {{- end -}}
 {{- $pages | jsonify -}}

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ site.Language.LanguageCode | default "zh-cn" }}">
+<html lang="{{ site.Language.Locale | default "zh-cn" }}">
 <head>
   <script>
     (() => {
@@ -8,10 +8,10 @@
       const isDark = storedTheme === "dark" || (!storedTheme && prefersDark);
       if (isDark) {
         document.documentElement.dataset.theme = "dark";
-        document.documentElement.style.background = "#20241f";
+        document.documentElement.style.background = "#0f0f11";
       } else if (storedTheme === "light") {
         document.documentElement.dataset.theme = "light";
-        document.documentElement.style.background = "#ffffff";
+        document.documentElement.style.background = "#f2f3f5";
       }
     })();
   </script>
@@ -19,6 +19,9 @@
 </head>
 <body class="kind-{{ .Kind }}{{ with .Layout }} layout-{{ . }}{{ end }}">
   {{ partial "header.html" . }}
+  {{ if eq .Kind "page" }}
+    <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+  {{ end }}
 
   <main class="site-main">
     {{ block "main" . }}{{ end }}
@@ -26,11 +29,26 @@
 
   {{ partial "footer.html" . }}
 
+  {{/* Spotlight 搜索弹层 */}}
+  <div class="search-modal" data-search-root data-search-index="{{ "index.json" | relURL }}">
+    <div class="search-backdrop" data-search-backdrop hidden aria-hidden="true"></div>
+    <div class="search-panel" id="site-search-panel" data-search-panel role="dialog" aria-modal="true" aria-label="搜索文章" hidden>
+      <div class="search-panel-head">
+        <svg class="search-panel-icon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input class="search-input" type="search" data-search-input placeholder="搜索文章..." autocomplete="off" spellcheck="false">
+        <button class="search-esc" type="button" data-search-close aria-label="关闭搜索">ESC</button>
+      </div>
+      <div class="search-results" data-search-results>
+        <p class="search-empty">输入关键词后，结果会显示在这里。</p>
+      </div>
+    </div>
+  </div>
+
   {{/* 图片 / Mermaid 放大预览 Lightbox */}}
-  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog">
+  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="图片预览">
     <div class="lightbox-bg" id="lightbox-bg"></div>
     <div class="lightbox-body" id="lightbox-body"></div>
-    <button class="lightbox-close" id="lightbox-close" aria-label="关闭预览">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭预览">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   </div>

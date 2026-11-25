@@ -12,9 +12,7 @@
 {{ $title := cond .IsHome site.Title (printf "%s | %s" $pageTitle site.Title) }}
 {{ $description := .Description | default .Summary | default site.Params.description | default site.Title | plainify }}
 
-<title>
-  {{ $title }}
-</title>
+<title>{{ $title }}</title>
 <meta name="description" content="{{ $description }}">
 <link rel="canonical" href="{{ .Permalink }}">
 <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ "index.xml" | absURL }}">
@@ -31,14 +29,13 @@
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $description }}">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#20241f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#18181b" media="(prefers-color-scheme: dark)">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-{{ $styles := slice (resources.Get "css/main.css") (resources.Get "css/journal.css") }}
-{{ with $styles | resources.Concat "css/site.css" | minify | fingerprint }}
+{{ with resources.Get "css/main.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ .RelPermalink }}">
 {{ end }}
 

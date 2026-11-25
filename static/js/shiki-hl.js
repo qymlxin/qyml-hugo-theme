@@ -1,13 +1,13 @@
-// Shiki 代码高亮：亮色 One Light / 暗色 One Dark Pro，随页面主题自动切换
+// Shiki 代码高亮：亮色 GitHub Light / 暗色 GitHub Dark，随页面主题自动切换
 (async () => {
   const pres = document.querySelectorAll('.post-content pre:not(.mermaid)');
   if (!pres.length) return;
 
-  const LIGHT = 'one-light';
-  const DARK  = 'one-dark-pro';
+  const LIGHT = 'github-light';
+  const DARK  = 'github-dark';
 
-  const SVG_COPY = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-  const SVG_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+  const SVG_COPY = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  const SVG_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`;
 
   const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -22,7 +22,6 @@
     if (m) langSet.add(m[1]);
   });
 
-  // 将每个 pre 替换为 .code-wrap（先用占位背景，Shiki 加载后再渲染）
   const blocks = [];
   pres.forEach(pre => {
     const code = pre.querySelector('code');
@@ -36,16 +35,16 @@
 
     wrap.innerHTML = `
       <div class="code-header">
-        <span class="code-lang-label">${lang}</span>
-        <button class="code-copy-btn" title="复制代码" aria-label="复制代码">${SVG_COPY}</button>
+        <span class="code-lang-label">${esc(lang)}</span>
+        <button class="code-copy-btn" type="button" title="复制代码" aria-label="复制代码">${SVG_COPY}<span>复制</span></button>
       </div>
-      <div class="code-body"><pre style="padding:1rem 1.25rem;margin:0;overflow-x:auto"><code>${esc(rawCode)}</code></pre></div>`;
+      <div class="code-body"><pre><code>${esc(rawCode)}</code></pre></div>`;
 
     pre.replaceWith(wrap);
     blocks.push({ wrap, lang, rawCode });
 
-    // 复制按钮
     const btn = wrap.querySelector('.code-copy-btn');
+    let resetTimer;
     btn.addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(rawCode); }
       catch {
@@ -53,13 +52,16 @@
         Object.assign(ta.style, { position: 'fixed', opacity: '0' });
         document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove();
       }
-      btn.innerHTML = SVG_CHECK;
-      btn.style.opacity = '1';
-      setTimeout(() => { btn.innerHTML = SVG_COPY; btn.style.opacity = ''; }, 1800);
+      btn.innerHTML = `${SVG_CHECK}<span>已复制</span>`;
+      btn.classList.add('is-copied');
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        btn.innerHTML = `${SVG_COPY}<span>复制</span>`;
+        btn.classList.remove('is-copied');
+      }, 1800);
     });
   });
 
-  // 加载 Shiki（只需两个主题）
   const { createHighlighter } = await import('https://esm.sh/shiki@1/bundle/web');
   const langs = [...langSet].filter(Boolean);
   const hl = await createHighlighter({
@@ -76,8 +78,6 @@
       try { html = hl.codeToHtml(rawCode, { lang: useLang, theme }); }
       catch { html = `<pre><code>${esc(rawCode)}</code></pre>`; }
 
-      // Prepare the Shiki node before attaching it, so a theme change never
-      // paints an unstyled pre or replaces the stable code-block background.
       const rendered = document.createElement('div');
       rendered.innerHTML = html;
       const shikiPre = rendered.querySelector('pre');
@@ -85,7 +85,7 @@
 
       shikiPre.style.cssText =
         'background:transparent;margin:0;border-radius:0;' +
-        'padding:1rem 1.15rem;overflow-x:auto;' +
+        'padding:1rem 1.25rem;overflow-x:auto;' +
         'font-size:inherit;line-height:inherit;box-shadow:none;';
       wrap.dataset.codeTheme = theme === DARK ? 'dark' : 'light';
       wrap.querySelector('.code-body').replaceChildren(shikiPre);
@@ -93,7 +93,5 @@
   };
 
   applyTheme();
-
-  // 页面主题切换时重新渲染
   window.addEventListener('theme-changed', applyTheme);
 })();
