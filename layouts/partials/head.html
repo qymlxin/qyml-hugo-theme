@@ -8,6 +8,8 @@
   {{ else if eq .Data.Singular "tag" }}
     {{ $pageTitle = "标签" }}
   {{ end }}
+{{ else if and (eq .Kind "section") (eq $pageTitle "Posts") }}
+  {{ $pageTitle = "文章" }}
 {{ end }}
 {{ $title := cond .IsHome site.Title (printf "%s | %s" $pageTitle site.Title) }}
 {{ $description := .Description | default .Summary | default site.Params.description | default site.Title | plainify }}

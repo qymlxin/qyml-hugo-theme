@@ -1,55 +1,96 @@
 {{ define "main" }}
 {{ $paginator := .Paginate .Pages }}
-<section class="list-page">
+{{ $sectionTitle := cond (eq .Title "Posts") "文章" .Title }}
 
-  <header class="list-header">
-    <div class="list-header-main">
-      <h1 class="page-title">{{ .Title }}</h1>
-      {{ with .Description }}
-        <p class="page-description">{{ . }}</p>
-      {{ else }}
-        <p class="page-description">共 {{ len .Pages }} 篇文章</p>
-      {{ end }}
-    </div>
-  </header>
-
-  <div class="post-list">
-  {{ range $paginator.Pages }}
-    <article class="post-item">
-      <div class="entry-meta">
-        {{ with .Date }}
-          <time datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006.01.02" }}</time>
+<div class="list-layout">
+  <section class="list-page" aria-labelledby="list-page-title">
+    <header class="list-header">
+      <div class="list-header-main">
+        <h1 class="page-title" id="list-page-title">{{ $sectionTitle }}</h1>
+        {{ with .Description }}
+          <p class="page-description">{{ . }}</p>
+        {{ else }}
+          <p class="page-description">共 {{ len .Pages }} 篇文章</p>
         {{ end }}
-        {{ with .Params.categories }}
-          <span class="meta-dot" aria-hidden="true">·</span>
-          {{ range first 2 . }}
-            <a class="post-cat-link" href="{{ printf "categories/%s/" (. | urlize) | relURL }}">{{ . }}</a>
-          {{ end }}
-        {{ end }}
-        <span class="meta-dot" aria-hidden="true">·</span>
-        <span>{{ .ReadingTime }} 分钟阅读</span>
       </div>
+    </header>
 
-      <h2 class="post-item-title">
-        <a class="post-item-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
-      </h2>
+    <div class="list-entries">
+    {{ range $paginator.Pages }}
+      <article class="list-entry">
+        <div class="list-entry-meta">
+          {{ with .Date }}
+            <time class="list-entry-date" datetime="{{ .Format "2006-01-02" }}">{{ .Format "2006.01.02" }}</time>
+          {{ end }}
+          <span class="list-entry-reading">{{ .ReadingTime }} 分钟阅读</span>
+        </div>
 
-      {{ partial "post-summary.html" . }}
+        <div class="list-entry-body">
+          <div class="list-entry-head">
+            {{ with .Params.categories }}
+              {{ range first 1 . }}
+                <a class="list-entry-cat" href="{{ printf "categories/%s/" (. | urlize) | relURL }}">{{ . }}</a>
+              {{ end }}
+            {{ end }}
+            <h2 class="list-entry-title">
+              <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </h2>
+          </div>
 
-      {{ with .Params.tags }}
-        <div class="post-tags">
-          {{ range first 4 . }}
-            <a class="post-tag post-tag-link" href="{{ printf "tags/%s/" (. | urlize) | relURL }}">{{ . }}</a>
+          {{ partial "post-summary.html" . }}
+
+          {{ with .Params.tags }}
+            <div class="post-tags">
+              {{ range first 4 . }}
+                <a class="post-tag post-tag-link" href="{{ printf "tags/%s/" (. | urlize) | relURL }}">{{ . }}</a>
+              {{ end }}
+            </div>
           {{ end }}
         </div>
-      {{ end }}
-    </article>
-  {{ else }}
-    <p class="post-empty">暂无内容。</p>
+      </article>
+    {{ else }}
+      <p class="post-empty">暂无内容。</p>
+    {{ end }}
+    </div>
+
+    {{ template "_internal/pagination.html" . }}
+  </section>
+
+  {{ if or site.Taxonomies.categories site.Taxonomies.tags }}
+  <aside class="list-sidebar" aria-label="分类与标签索引">
+    {{ with site.Taxonomies.categories }}
+    <section class="float-card">
+      <div class="float-card-head">
+        <h2 class="side-title">文章分类</h2>
+        <a class="side-more" href="{{ "categories/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="side-terms">
+        {{ range .ByCount }}
+          <li>
+            <a href="{{ .Page.RelPermalink }}">
+              <span>{{ .Page.Title }}</span>
+              <span class="side-count">{{ .Count }}</span>
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    </section>
+    {{ end }}
+
+    {{ with site.Taxonomies.tags }}
+    <section class="float-card">
+      <div class="float-card-head">
+        <h2 class="side-title">热门标签</h2>
+        <a class="side-more" href="{{ "tags/" | relURL }}">全部 <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="side-tags">
+        {{ range first 12 .ByCount }}
+          <a class="side-tag" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span>{{ .Count }}</span></a>
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+  </aside>
   {{ end }}
-  </div>
-
-  {{ template "_internal/pagination.html" . }}
-
-</section>
+</div>
 {{ end }}
